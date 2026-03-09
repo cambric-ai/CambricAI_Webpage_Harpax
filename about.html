@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Cambric AI</title>
+<meta name="description" content="Cambric AI builds tools that give you visibility and control over AI systems.">
+
+<!-- Favicon -->
+<link rel="icon" href="favicon.svg">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- Stylesheets -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+
+<style>
+  /* About page styles */
+  .about-hero {
+    padding: 140px 48px 60px;
+  }
+  .about-hero h1 {
+    max-width: 720px;
+  }
+  .about-hero .hero-sub {
+    font-size: 13px;
+    color: var(--cream2);
+    max-width: 580px;
+    line-height: 1.72;
+    font-weight: 300;
+  }
+
+  .about-section {
+    padding: 64px 48px;
+    border-top: 1px solid var(--border);
+  }
+  .about-section p {
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--cream3);
+    line-height: 1.72;
+    max-width: 680px;
+    margin-bottom: 18px;
+  }
+  .about-section p:last-of-type {
+    margin-bottom: 28px;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    max-width: 680px;
+  }
+  .team-card {
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    padding: 28px;
+    border-radius: 2px;
+  }
+  .team-card .team-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 4px;
+    letter-spacing: .03em;
+  }
+  .team-card .team-role {
+    font-size: 10px;
+    font-weight: 300;
+    color: var(--cream3);
+    letter-spacing: .06em;
+  }
+
+  @media (max-width: 860px) {
+    .about-hero { padding: 120px 24px 48px; }
+    .about-section { padding: 48px 24px; }
+    .team-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="harpax.html">Harpax</a>
+    <a href="research.html">Research</a>
+    <a href="https://github.com/nullevent/harpax">Docs</a>
+    <a href="#" class="nav-dl">Download →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="about-hero">
+  <h1>We build tools that show you what your AI is actually doing.</h1>
+  <p class="hero-sub">Cambric AI is a small team focused on one problem: AI coding assistants are powerful, widely adopted, and operate without any meaningful oversight. We're building the tools to change that.</p>
+</section>
+
+<!-- THE PROBLEM WE SAW -->
+<section class="about-section">
+  <div class="section-label">// THE PROBLEM WE SAW</div>
+  <p>AI coding assistants like Claude Code can read any file in your project, execute arbitrary commands, and make network requests — all without an audit trail. Developers trust these tools because they're productive. But trust without visibility is a liability.</p>
+  <p>We saw this gap growing every day. Millions of developers running AI tools that operate unsupervised inside their most sensitive codebases. No logs. No rules. No way to know what actually happened after a session.</p>
+</section>
+
+<!-- WHAT WE BUILT -->
+<section class="about-section">
+  <div class="section-label">// WHAT WE BUILT</div>
+  <p>Harpax is our first product. It monitors every action your AI coding assistant takes and gives you a complete, searchable record of what happened. It can block dangerous actions in real time or run passively and just log. It's open source, self-hosted, and all data stays local.</p>
+  <p>It works today. You can install it in under two minutes.</p>
+  <a href="harpax.html" class="btn-p">Learn about Harpax →</a>
+</section>
+
+<!-- WHAT'S NEXT -->
+<section class="about-section">
+  <div class="section-label">// WHAT'S NEXT</div>
+  <p>We have two more products in development. We're not ready to talk about them yet — we'll ship when they're real, not when they're interesting to pitch.</p>
+  <p>If you're interested in AI governance tooling, or if you're building in this space, we'd like to hear from you.</p>
+  <a href="contact.html" class="btn-g">Get in touch →</a>
+</section>
+
+<!-- TEAM -->
+<section class="about-section">
+  <div class="section-label">// TEAM</div>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-name">Paul Montgomery</div>
+      <div class="team-role">Founder, CEO</div>
+    </div>
+    <div class="team-card">
+      <div class="team-name">Chris Guffey</div>
+      <div class="team-role">Founder, CPO</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="harpax.html">Harpax</a>
+    <a href="https://github.com/nullevent/harpax">Docs</a>
+    <a href="research.html">Research</a>
+    <a href="blog.html">Blog</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</body>
+</html>
