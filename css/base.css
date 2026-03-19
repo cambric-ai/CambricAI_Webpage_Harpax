@@ -17,7 +17,9 @@
   --green2:  #3A8060;
   --green3:  #7ABFA0;
   --warn:    #D07070;
+  --amber:   #D0A060;
 }
+
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
