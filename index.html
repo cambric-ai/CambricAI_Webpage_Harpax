@@ -3,23 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Harpax — Antivirus for AI | Cambric AI</title>
-<meta name="description" content="Harpax monitors every action your AI coding assistant takes. Real-time protection, session summaries, zero telemetry. Download for Mac/Windows or install via CLI.">
+<title>Harpax — Autonomous AI Security | Cambric AI</title>
+<meta name="description" content="Antivirus for AI. Harpax watches every file accessed, every command run, every external call made — and stops anything it shouldn't be doing.">
 
 <!-- OG Tags -->
-<meta property="og:title" content="Harpax — Antivirus for AI | Cambric AI">
-<meta property="og:description" content="Harpax monitors every action your AI coding assistant takes. Real-time protection, session summaries, zero telemetry. Download for Mac/Windows or install via CLI.">
-<meta property="og:image" content="favicon.svg">
-<meta property="og:url" content="#">
+<meta property="og:title" content="Harpax — Antivirus for AI">
+<meta property="og:description" content="Know what your AI touched. Every time.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cambric.ai">
+<meta property="og:image" content="https://cambric.ai/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 
 <!-- Favicon -->
-<link rel="icon" href="favicon.svg">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 
 <!-- Canonical -->
-<link rel="canonical" href="#">
+<link rel="canonical" href="https://cambric.ai">
 
 <!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 
 <!-- Stylesheets -->
@@ -27,252 +30,120 @@
 <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="content">
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">Cambric<span> AI</span></a>
-  <div class="nav-links">
-    <a href="harpax.html">Harpax</a>
-    <a href="research.html">Research</a>
-    <a href="https://github.com/nullevent/harpax">Docs</a>
-    <a href="#" class="nav-dl">Download →</a>
-  </div>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-eyebrow">Harpax — AI Session Security</div>
-    <h1>Antivirus for AI.<br>Know what it touched.<br><em>Before it's too late.</em></h1>
-    <p class="hero-sub">
-      AI coding assistants are powerful — and unsupervised. Harpax watches every file accessed, every command run, every external call made, and stops anything it shouldn't be doing. For everyone who uses AI. Not just developers.
-    </p>
-
-    <!-- TWO-LANE CTA -->
-    <div class="lanes">
-
-      <!-- CONSUMER LANE -->
-      <div class="lane lane-consumer">
-        <div class="lane-tag">FOR EVERYONE</div>
-        <h3>Download Harpax</h3>
-        <p>One-click install. Runs quietly in the background. Protects your files and flags anything suspicious — no technical knowledge needed.</p>
-        <a href="#" class="btn-download">
-          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Download for Mac / Windows
-        </a>
-        <div class="lane-price"><strong>$9 / month</strong> — 14-day free trial, cancel anytime</div>
-      </div>
-
-      <!-- DEV LANE -->
-      <div class="lane lane-dev">
-        <div class="lane-tag">FOR DEVELOPERS</div>
-        <h3>Install via CLI</h3>
-        <p>Full configuration control. YAML rules, custom detection tiers, webhook alerts, local-only data. Open source, self-hosted option available.</p>
-        <a href="https://github.com/nullevent/harpax" class="btn-cli">
-          View on GitHub →
-        </a>
-        <div class="lane-cmd">
-          <code>git clone github.com/nullevent/harpax && ./install.sh</code>
-        </div>
-      </div>
-
+  <nav>
+    <a href="#" class="nav-brand">Cambric <span class="ns">AI</span></a>
+    <div class="nav-links">
+      <a href="harpax.html" class="nav-mark"><svg width="18" height="28" viewBox="0 0 52 80"><path d="M18,52 Q10,28 22,8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18,52 Q32,40 38,18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="14" y1="72" x2="28" y2="2" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><line x1="22" y1="72" x2="36" y2="2" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg></a>
+      <a href="#features">Features</a>
+      <a href="#detection">Detection</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#" class="nav-cta">Download</a>
     </div>
-  </div>
-</section>
+    <button class="hamburger" onclick="this.classList.toggle('open');document.querySelector('.mobile-nav').classList.toggle('open')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
 
-<!-- FOR EVERYONE -->
-<section class="consumer-section">
-  <div class="section-label">// FOR EVERYONE WHO USES AI</div>
-
-  <div class="consumer-grid">
-    <div class="consumer-card">
-      <span class="cc-icon">&#x1F6E1;</span>
-      <div class="cc-title">File Protection</div>
-      <div class="cc-body">Harpax watches which files your AI tool accesses. You get an alert the moment it touches something it shouldn't — credentials, private documents, system files.</div>
-    </div>
-    <div class="consumer-card">
-      <span class="cc-icon">&#x1F4CB;</span>
-      <div class="cc-title">Session Summaries</div>
-      <div class="cc-body">After every AI session, Harpax gives you a plain-English summary of exactly what happened. No logs to parse. No technical knowledge needed.</div>
-    </div>
-    <div class="consumer-card">
-      <span class="cc-icon">&#x1F512;</span>
-      <div class="cc-title">Stays on Your Machine</div>
-      <div class="cc-body">Everything Harpax records stays local. No cloud upload, no telemetry, no data sharing. Your sessions are yours — export or delete them anytime.</div>
-    </div>
-    <div class="consumer-card">
-      <span class="cc-icon">&#x26A1;</span>
-      <div class="cc-title">Real-Time Blocking</div>
-      <div class="cc-body">When Harpax detects a dangerous action, it stops it before it runs. Not after. You choose what gets blocked and what just gets flagged.</div>
-    </div>
-    <div class="consumer-card">
-      <span class="cc-icon">&#x1F4B0;</span>
-      <div class="cc-title">Cost Visibility</div>
-      <div class="cc-body">See how much each AI session cost you in tokens and dollars. Know which tasks are worth it and where you're burning budget for nothing.</div>
-    </div>
-    <div class="consumer-card">
-      <span class="cc-icon">&#x1F514;</span>
-      <div class="cc-title">Instant Alerts</div>
-      <div class="cc-body">Desktop notifications the moment something worth knowing happens. No dashboard to check. Harpax tells you when it matters.</div>
-    </div>
+  <div class="mobile-nav">
+    <a href="#features" onclick="document.querySelector('.hamburger').click()">Features</a>
+    <a href="#detection" onclick="document.querySelector('.hamburger').click()">Detection</a>
+    <a href="#pricing" onclick="document.querySelector('.hamburger').click()">Pricing</a>
+    <a href="#" class="nav-cta" style="margin-top:8px">Download</a>
   </div>
 
-  <div class="consumer-bottom">
-    <div class="cb-left">
-      <h3>Simple, honest pricing.</h3>
-      <p>One plan. Everything included. No usage limits, no feature tiers, no gotchas. The CLI version is free and open source forever — the GUI is for everyone who'd rather just have it work.</p>
-      <a href="#" class="btn-download">
-        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 1v9M4 7l4 4 4-4M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Start Free Trial
-      </a>
+  <section class="hero">
+    <div class="hero-mark">Harpax</div>
+    <div class="hero-tag">// autonomous ai security</div>
+    <h1>Antivirus for AI.<br>Know what it touched. <em>Every time.</em></h1>
+    <p class="hero-sub">AI coding assistants are powerful — and unsupervised. Harpax watches every file accessed, every command run, every external call made. And stops anything it shouldn't be doing.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-p">Download Harpax</a>
     </div>
-    <div class="cb-right">
-      <div class="pricing-row"><span class="pr-label">14-day trial</span><span class="pr-val free">Free</span></div>
-      <div class="pricing-row"><span class="pr-label">Harpax GUI</span><span class="pr-val paid">$9 / month</span></div>
-      <div class="pricing-row"><span class="pr-label">Harpax CLI</span><span class="pr-val free">Free / open source</span></div>
-      <div class="pricing-row"><span class="pr-label">Data stays local</span><span class="pr-val free">Always</span></div>
-      <div class="pricing-row"><span class="pr-label">Session summaries</span><span class="pr-val">Both plans</span></div>
-      <div class="pricing-row"><span class="pr-label">Custom rules</span><span class="pr-val">CLI only</span></div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- SESSION TRACE -->
-<section class="trace-section">
-  <div class="section-label">// WHAT A SESSION LOOKS LIKE</div>
-  <div class="trace-window">
-    <div class="trace-titlebar">
-      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
-      <span>harpax — session sess_4f2a19c · claude-code · 14 min ago</span>
-    </div>
-    <div class="trace-body">
-      <div class="trace-line"><span class="ts">09:14:02</span><span class="tag read">READ</span><span class="tpath"><span class="dim">src/</span>auth/session.rb</span></div>
-      <div class="trace-line"><span class="ts">09:14:04</span><span class="tag read">READ</span><span class="tpath"><span class="dim">config/</span>database.yml</span></div>
-      <div class="trace-line"><span class="ts">09:14:07</span><span class="tag exec">EXEC</span><span class="tpath">bundle exec rails db:migrate</span></div>
-      <div class="trace-line"><span class="ts">09:14:22</span><span class="tag read">READ</span><span class="tpath"><span class="dim">config/</span><span class="hi">credentials.yml.enc</span></span></div>
-      <div class="trace-line"><span class="ts">09:14:23</span><span class="tag warn">WARN</span><span class="tpath"><span class="bad">credentials file accessed — sensitive_file_pattern</span></span></div>
-      <div class="trace-line"><span class="ts">09:14:45</span><span class="tag net">NET</span><span class="tpath"><span class="net">POST api.github.com</span><span class="dim"> /repos/… [200]</span></span></div>
-      <div class="trace-line"><span class="ts">09:14:46</span><span class="tag warn">BLOCK</span><span class="tpath"><span class="bad">external write blocked — severity: critical</span></span></div>
-      <div class="trace-line"><span class="ts">09:15:38</span><span class="tag ok">END</span><span class="tpath"><span class="dim">session complete · </span>2 warnings · 1 blocked · $0.34</span></div>
-      <div class="trace-stats">
-        <div class="stat"><span class="stat-n">847</span><span class="stat-l">FILE OPS</span></div>
-        <div class="stat"><span class="stat-n">23</span><span class="stat-l">COMMANDS</span></div>
-        <div class="stat"><span class="stat-n">2</span><span class="stat-l">WARNINGS</span></div>
-        <div class="stat"><span class="stat-n">1</span><span class="stat-l">BLOCKED</span></div>
-        <div class="stat"><span class="stat-n">$0.34</span><span class="stat-l">SESSION COST</span></div>
+  <section class="session-section">
+    <div class="sl">// what a session looks like</div>
+    <div class="sw">
+      <div class="sh"><span class="sh-title">harpax — session sess_4f2a19c · claude-code</span><span class="sh-meta">14 min ago · $0.34</span></div>
+      <div class="sr"><span class="st">09:14:02</span><span class="sa ar">READ</span><span class="sd">src/auth/session.rb</span></div>
+      <div class="sr"><span class="st">09:14:04</span><span class="sa ar">READ</span><span class="sd">config/database.yml</span></div>
+      <div class="sr"><span class="st">09:14:07</span><span class="sa ae">EXEC</span><span class="sd">bundle exec rails db:migrate</span></div>
+      <div class="sr"><span class="st">09:14:22</span><span class="sa ar">READ</span><span class="sd">config/credentials.yml.enc</span></div>
+      <div class="sr"><span class="st">09:14:23</span><span class="sa aw">WARN</span><span class="sd">credentials file accessed — sensitive_file_pattern</span></div>
+      <div class="sr"><span class="st">09:14:45</span><span class="sa an">NET</span><span class="sd">POST api.github.com /repos/… [200]</span></div>
+      <div class="sr"><span class="st">09:14:46</span><span class="sa ab">BLOCK</span><span class="sd">external write blocked — severity: critical</span></div>
+      <div class="sr"><span class="st">09:15:38</span><span class="sa ag">END</span><span class="sd">session complete · 2 warnings · 1 blocked</span></div>
+      <div class="sst">
+        <div class="ssi"><div class="sv">847</div><div class="slb">FILE OPS</div></div>
+        <div class="ssi"><div class="sv">23</div><div class="slb">COMMANDS</div></div>
+        <div class="ssi"><div class="sv" style="color:var(--amber)">2</div><div class="slb">WARNINGS</div></div>
+        <div class="ssi"><div class="sv" style="color:var(--warn)">1</div><div class="slb">BLOCKED</div></div>
+        <div class="ssi"><div class="sv">$0.34</div><div class="slb">COST</div></div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FOR DEVELOPERS -->
-<section class="dev-section">
-  <div class="section-label">// FOR DEVELOPERS — FULL CONTROL</div>
-  <div class="features-grid">
-    <div class="feature">
-      <div class="f-num">01</div>
-      <div class="f-title">Configurable Rules</div>
-      <div class="f-body">YAML-based rule definitions. Custom regex patterns, file path matchers, command blocklists. Your rules, your thresholds.</div>
+  <section class="features-section" id="features">
+    <div class="sl">// for everyone who uses ai</div>
+    <div class="fg">
+      <div class="fc"><div class="fn">01</div><div class="ft">File protection</div><div class="fd">Alerts the moment AI touches credentials, private documents, or system files.</div></div>
+      <div class="fc"><div class="fn">02</div><div class="ft">Session summaries</div><div class="fd">Plain-English summary of every AI session. No logs to parse.</div></div>
+      <div class="fc"><div class="fn">03</div><div class="ft">Stays local</div><div class="fd">No cloud upload. No telemetry. Your sessions are yours.</div></div>
+      <div class="fc"><div class="fn">04</div><div class="ft">Real-time blocking</div><div class="fd">Stops dangerous actions before they run. Not after.</div></div>
+      <div class="fc"><div class="fn">05</div><div class="ft">Cost visibility</div><div class="fd">Token and dollar cost per session. Know where you're burning budget.</div></div>
+      <div class="fc"><div class="fn">06</div><div class="ft">Instant alerts</div><div class="fd">Desktop notifications when it matters. No dashboard to check.</div></div>
     </div>
-    <div class="feature">
-      <div class="f-num">02</div>
-      <div class="f-title">Webhook Alerts</div>
-      <div class="f-body">Slack, Discord, or any HTTP endpoint. Get notified in your existing workflow, not another dashboard.</div>
-    </div>
-    <div class="feature">
-      <div class="f-num">03</div>
-      <div class="f-title">Data Export</div>
-      <div class="f-body">Export sessions as JSON, CSV, or markdown summaries. Pipe into your own tooling, SIEMs, or audit logs.</div>
-    </div>
-    <div class="feature">
-      <div class="f-num">04</div>
-      <div class="f-title">Self-Hosted</div>
-      <div class="f-body">No cloud dependency. No API key required for core functionality. Clone, build, run. MIT licensed.</div>
-    </div>
-    <div class="feature">
-      <div class="f-num">05</div>
-      <div class="f-title">Passive or Active</div>
-      <div class="f-body">Passive mode: log everything, block nothing. Active mode: enforce rules by severity in real time. Switch with one config line.</div>
-    </div>
-    <div class="feature">
-      <div class="f-num">06</div>
-      <div class="f-title">Semantic Detection</div>
-      <div class="f-body">Tier 2 embedding-based detection catches paraphrased attacks that regex misses. Optional ~100MB model download.</div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- DETECTION TIERS -->
-<section class="tiers-section">
-  <div class="section-label">// THREE-TIER DETECTION ENGINE</div>
-  <div class="tiers-layout">
-    <div>
-      <div class="tier-item">
-        <div class="tier-n">T1</div>
-        <div class="tier-text">
-          <h4>Pattern Matching <span class="tier-badge">&lt;1ms</span></h4>
-          <p>Fast regex detection catches known threat signatures instantly. On by default, no setup required.</p>
-        </div>
-      </div>
-      <div class="tier-item">
-        <div class="tier-n">T2</div>
-        <div class="tier-text">
-          <h4>Semantic Similarity <span class="tier-badge">10–50ms</span></h4>
-          <p>AI embeddings catch paraphrased attacks that regex misses. One-time ~100MB model download. Optional.</p>
-        </div>
-      </div>
-      <div class="tier-item">
-        <div class="tier-n">T3</div>
-        <div class="tier-text">
-          <h4>LLM Analysis <span class="tier-badge">Roadmap</span></h4>
-          <p>Full LLM-powered threat analysis for sophisticated edge cases. Requires API key.</p>
-        </div>
-      </div>
+  <section class="tiers-section" id="detection">
+    <div class="sl">// three-tier detection engine</div>
+    <div class="tr">
+      <div class="tc t1"><div class="tb">T1</div><div class="tn">Pattern matching</div><div class="tsp">&lt;1ms</div><div class="td">Fast regex detection catches known threat signatures instantly. On by default.</div></div>
+      <div class="tc t2"><div class="tb">T2</div><div class="tn">Semantic similarity</div><div class="tsp">10–50ms</div><div class="td">AI embeddings catch paraphrased attacks that regex misses.</div></div>
+      <div class="tc t3"><div class="tb">T3</div><div class="tn">LLM analysis</div><div class="tsp">roadmap</div><div class="td">Full LLM-powered threat analysis for sophisticated edge cases.</div></div>
     </div>
-    <div>
-      <div class="config-card">
-        <div class="config-head">// ACTIVE MODE CONFIG</div>
-        <div class="config-body">
-          <div class="config-row"><span class="ck">protection.mode</span><span class="cv">active</span></div>
-          <div class="config-row"><span class="ck">severity.critical</span><span class="cv block">block</span></div>
-          <div class="config-row"><span class="ck">severity.high</span><span class="cv warn2">warn</span></div>
-          <div class="config-row"><span class="ck">severity.medium</span><span class="cv log">log</span></div>
-          <div class="config-row"><span class="ck">tier2.enabled</span><span class="cv">false</span></div>
-          <div class="config-row"><span class="ck">cost.warning_threshold</span><span class="cv">$5.00</span></div>
-          <div class="config-row"><span class="ck">retention.max_age_days</span><span class="cv">30</span></div>
-        </div>
-      </div>
+  </section>
+
+  <section class="config-section">
+    <div class="sl">// active mode config</div>
+    <div class="cb">
+      <div class="cr"><span class="ck">protection.mode</span><span class="cv cvg">active</span></div>
+      <div class="cr"><span class="ck">severity.critical</span><span class="cv cvw">block</span></div>
+      <div class="cr"><span class="ck">severity.high</span><span class="cv cvp">warn</span></div>
+      <div class="cr"><span class="ck">severity.medium</span><span class="cv">log</span></div>
+      <div class="cr"><span class="ck">tier2.enabled</span><span class="cv">false</span></div>
+      <div class="cr"><span class="ck">cost.warning_threshold</span><span class="cv">$5.00</span></div>
+      <div class="cr"><span class="ck">retention.max_age_days</span><span class="cv">30</span></div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- CTA -->
-<section class="cta-section">
-  <h2>Start protecting your AI sessions today.</h2>
-  <p>14-day free trial. No credit card required. Works in under two minutes.</p>
-  <div class="cta-btns">
-    <a href="#" class="btn-p">Download Harpax — Free Trial</a>
-    <a href="https://github.com/nullevent/harpax" class="btn-g">CLI on GitHub →</a>
-  </div>
-</section>
+  <section class="pricing-section" id="pricing">
+    <div class="sl">// simple, honest pricing</div>
+    <h2>One plan. Everything included.</h2>
+    <p class="psub">No usage limits. No feature tiers. No gotchas.</p>
+    <div class="pc">
+      <div class="pci"><div class="pl">INDIVIDUAL</div><div class="pa">$4.99 <span>/ month</span></div><div class="pn">14-day free trial</div></div>
+      <div class="pci"><div class="pl">ENTERPRISE</div><div class="pa">$10 <span>/ seat</span></div><div class="pn">+ implementation fee</div></div>
+    </div>
+  </section>
 
-<!-- FOOTER -->
-<footer>
-  <a href="#" class="footer-logo">Cambric AI</a>
-  <div class="footer-links">
-    <a href="harpax.html">Harpax</a>
-    <a href="https://github.com/nullevent/harpax">Docs</a>
-    <a href="research.html">Research</a>
-    <a href="blog.html">Blog</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-  </div>
-  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
-</footer>
+  <section class="cta-section">
+    <h2>Start protecting your AI sessions.</h2>
+    <p class="ctasub">14-day free trial. No credit card required. Works in under two minutes.</p>
+    <div class="cta-btn">
+      <a href="#" class="btn-p">Download Harpax — Free Trial</a>
+    </div>
+  </section>
 
+  <footer>
+    <div class="fb">// Cambric AI</div>
+    <div class="fl"><a href="harpax.html">Harpax</a><a href="harpax.html">Docs</a><a href="research.html">Research</a><a href="contact.html">Contact</a></div>
+    <div class="fnn">all session data stays local</div>
+  </footer>
+
+</div>
 </body>
 </html>
