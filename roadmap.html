@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roadmap — Cambric AI</title>
+<meta name="description" content="What we've shipped, what we're building, and where Harpax is headed.">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0D1020;
+  --bg2:     #111428;
+  --surface: #161930;
+  --border:  #252840;
+  --purple:  #4A3C7A;
+  --purple2: #6050A0;
+  --purple3: #A090C8;
+  --cream:   #DDD9D0;
+  --cream2:  #A8A49C;
+  --cream3:  #6A6878;
+  --green:   #2A5C4A;
+  --green2:  #3A8060;
+  --green3:  #7ABFA0;
+  --warn:    #D07070;
+  --amber:   #D0A060;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--cream);
+  font-family:'JetBrains Mono',monospace;font-weight:300;
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+
+.grid-bg{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);
+  background-size:60px 60px;
+  z-index:0;pointer-events:none;
+}
+.content{position:relative;z-index:1}
+
+/* NAV — matches index.html */
+nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(20px,4vw,48px);height:60px;
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);position:sticky;top:0;z-index:10;
+  background:rgba(13,16,32,.88);
+}
+.nav-brand{font-size:14px;font-weight:500;letter-spacing:2px;color:var(--cream);white-space:nowrap}
+.nav-brand .ns{color:var(--cream3);font-weight:300}
+.nav-links{display:flex;align-items:center;gap:clamp(16px,2.5vw,28px)}
+.nav-links a{
+  color:var(--cream3);font-size:11px;letter-spacing:1px;font-weight:300;
+  transition:color .2s;padding:8px 0;
+}
+.nav-links a:hover{color:var(--cream2)}
+.nav-cta{
+  background:var(--cream)!important;color:var(--bg)!important;
+  padding:8px 18px!important;font-weight:500!important;
+  font-family:'JetBrains Mono',monospace;border:none;cursor:pointer;
+  min-height:44px;display:inline-flex;align-items:center;
+}
+.hamburger{
+  display:none;background:none;border:none;cursor:pointer;
+  width:44px;height:44px;align-items:center;justify-content:center;
+  flex-direction:column;gap:5px;
+}
+.hamburger span{display:block;width:20px;height:1.5px;background:var(--cream);transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.mobile-nav{
+  display:none;position:fixed;top:60px;left:0;right:0;bottom:0;
+  background:rgba(13,16,32,.96);backdrop-filter:blur(16px);
+  z-index:9;flex-direction:column;align-items:center;
+  justify-content:center;gap:32px;
+}
+.mobile-nav.open{display:flex}
+.mobile-nav a{
+  color:var(--cream2);font-size:14px;letter-spacing:2px;font-weight:300;
+  padding:12px 24px;min-height:48px;display:flex;align-items:center;
+}
+
+/* HERO */
+.rm-hero{
+  padding:120px 48px 48px;
+  text-align:center;
+}
+.rm-hero h1{
+  font-family:'EB Garamond',serif;
+  font-size:clamp(36px,6vw,56px);
+  font-weight:400;
+  color:var(--cream);
+  margin-bottom:12px;
+}
+.rm-hero .hero-sub{
+  font-size:12px;
+  color:var(--cream3);
+  max-width:520px;
+  margin:0 auto;
+  line-height:1.72;
+  font-weight:300;
+  padding:0 16px;
+}
+
+/* TIMELINE */
+.timeline-strip{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  padding:40px 48px 48px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.tl-node{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  cursor:pointer;
+  padding:0 16px;
+  transition:all .2s;
+  min-width:120px;
+}
+.tl-dot{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--border);
+  background:var(--bg2);
+  transition:all .25s;
+  position:relative;
+  z-index:2;
+}
+.tl-node.released .tl-dot{background:var(--green3);border-color:var(--green3)}
+.tl-node.current .tl-dot{background:var(--purple3);border-color:var(--purple3);box-shadow:0 0 12px rgba(160,144,200,.4)}
+.tl-node.planned .tl-dot{border-color:var(--cream3)}
+.tl-node.tentative .tl-dot{border-color:var(--border);border-style:dashed}
+.tl-node.active .tl-dot{transform:scale(1.4);box-shadow:0 0 20px rgba(160,144,200,.5)}
+.tl-label{
+  font-size:11px;
+  font-weight:500;
+  color:var(--cream2);
+  margin-top:12px;
+  letter-spacing:.06em;
+  transition:color .2s;
+  text-align:center;
+}
+.tl-sublabel{
+  font-size:9px;
+  color:var(--cream3);
+  font-weight:300;
+  letter-spacing:.04em;
+  margin-top:2px;
+}
+.tl-node.active .tl-label{color:var(--cream)}
+.tl-connector{
+  width:48px;height:2px;
+  background:var(--border);
+  flex-shrink:0;
+  margin-top:-18px;
+}
+.tl-connector.done{background:var(--green3)}
+.tl-connector.active{background:linear-gradient(90deg,var(--green3),var(--purple3))}
+
+/* FILTER BAR */
+.filter-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:0 48px 32px;
+  flex-wrap:wrap;
+}
+.filter-btn{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  color:var(--cream3);
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;
+  font-weight:400;
+  letter-spacing:.1em;
+  padding:6px 14px;
+  cursor:pointer;
+  transition:all .2s;
+  border-radius:2px;
+}
+.filter-btn:hover{color:var(--cream);border-color:var(--cream3)}
+.filter-btn.active{
+  background:var(--surface);
+  color:var(--cream);
+  border-color:var(--purple);
+}
+
+/* CARDS GRID */
+.rm-section{
+  padding:0 48px 64px;
+  max-width:1100px;
+  margin:0 auto;
+}
+.rm-release-header{
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:.18em;
+  color:var(--purple3);
+  padding:24px 0 16px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:16px;
+}
+.rm-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:32px;
+}
+.rm-card{
+  border:1px solid var(--border);
+  background:var(--bg2);
+  padding:24px;
+  border-radius:2px;
+  transition:border-color .2s, transform .15s;
+  cursor:default;
+}
+.rm-card:hover{
+  border-color:var(--cream3);
+  transform:translateY(-1px);
+}
+.rm-card-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.rm-card-title{
+  font-size:12px;
+  font-weight:500;
+  color:var(--cream);
+  letter-spacing:.02em;
+}
+.rm-card-badge{
+  font-size:8px;
+  font-weight:500;
+  letter-spacing:.12em;
+  padding:3px 8px;
+  border-radius:2px;
+  white-space:nowrap;
+}
+.rm-card-badge.shipped{background:rgba(42,92,74,.35);color:var(--green3);border:1px solid var(--green)}
+.rm-card-badge.in-progress{background:rgba(74,60,122,.3);color:var(--purple3);border:1px solid var(--purple)}
+.rm-card-badge.planned{background:rgba(106,104,120,.15);color:var(--cream3);border:1px solid var(--border)}
+.rm-card-badge.tentative{background:rgba(106,104,120,.08);color:var(--cream3);border:1px solid var(--border);border-style:dashed}
+.rm-card-product{
+  font-size:8px;
+  font-weight:400;
+  letter-spacing:.14em;
+  color:var(--cream3);
+  margin-bottom:10px;
+}
+.rm-card-desc{
+  font-size:11px;
+  font-weight:300;
+  color:var(--cream3);
+  line-height:1.65;
+}
+.rm-card.shipped{border-left:3px solid var(--green3)}
+.rm-card.in-progress{border-left:3px solid var(--purple3)}
+
+/* FOOTER — matches index.html */
+footer{
+  border-top:1px solid var(--border);
+  padding:32px clamp(20px,4vw,48px);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:16px;
+  font-size:10px;color:var(--cream3);
+}
+.footer-brand{font-size:13px;color:var(--cream2);letter-spacing:1.5px;font-weight:400}
+.footer-brand .ns{color:var(--cream3);font-weight:300}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--cream3);transition:color .2s;font-size:10px;letter-spacing:.5px}
+.footer-links a:hover{color:var(--cream2)}
+.footer-note{color:var(--cream3);font-size:9px;letter-spacing:.5px}
+
+@media(max-width:860px){
+  .hamburger{display:flex}
+  .nav-links{display:none}
+  .rm-hero{padding:100px 24px 36px}
+  .timeline-strip{padding:24px 16px 36px;justify-content:flex-start}
+  .filter-bar{padding:0 24px 24px}
+  .rm-section{padding:0 24px 48px}
+  .rm-grid{grid-template-columns:1fr}
+  .tl-node{min-width:90px;padding:0 8px}
+  .tl-connector{width:24px}
+  footer{padding:24px;flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+  <nav>
+    <a href="index.html" class="nav-brand">Cambric <span class="ns">AI</span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="roadmap.html">Roadmap</a>
+      <a href="contact.html">Contact</a>
+      <a href="download.html" class="nav-cta">Download</a>
+    </div>
+    <button class="hamburger" onclick="this.classList.toggle('open');document.querySelector('.mobile-nav').classList.toggle('open')" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-nav">
+    <a href="index.html" onclick="document.querySelector('.hamburger').click()">Home</a>
+    <a href="roadmap.html">Roadmap</a>
+    <a href="contact.html" onclick="document.querySelector('.hamburger').click()">Contact</a>
+    <a href="download.html" class="nav-cta" style="margin-top:8px">Download</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="rm-hero">
+    <h1>Roadmap</h1>
+    <p class="hero-sub">What we've shipped, what we're building, and where Harpax is headed. Click a release to filter.</p>
+  </section>
+
+  <!-- TIMELINE -->
+  <div class="timeline-strip" id="timeline"></div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar" id="filters">
+    <button class="filter-btn active" data-filter="all">ALL</button>
+    <button class="filter-btn" data-filter="harpax-cli">HARPAX CLI</button>
+    <button class="filter-btn" data-filter="harpax-gui">DESKTOP APP</button>
+    <button class="filter-btn" data-filter="integrations">INTEGRATIONS</button>
+    <button class="filter-btn" data-filter="platform">PLATFORM</button>
+  </div>
+
+  <!-- CARDS -->
+  <div class="rm-section" id="cards-container"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-brand">Cambric <span class="ns">AI</span></span>
+    <div class="footer-links">
+      <a href="research.html">Research</a>
+      <a href="blog.html">Blog</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <span class="footer-note">all session data stays local</span>
+  </footer>
+
+</div>
+
+<script>
+var RELEASES = [
+  {id:"v0_2",label:"v0.2.0-demo",sublabel:"Shipped",status:"released"},
+  {id:"q2_2026",label:"Q2 2026",sublabel:"In Progress",status:"current"},
+  {id:"q3_2026",label:"Q3 2026",sublabel:"Planned",status:"planned"},
+  {id:"q4_2026",label:"Q4 2026",sublabel:"Planned",status:"planned"},
+  {id:"future",label:"Future",sublabel:"Tentative",status:"tentative"}
+];
+
+var CARDS = [
+  {title:"Tier 0 \u2014 Scope Policy Engine",release:"v0_2",product:"harpax-cli",status:"shipped",description:"RED/YELLOW/GREEN zone enforcement. Blocks file access to ~/.ssh, ~/.aws, ~/.gnupg, and other sensitive paths before the agent can read them."},
+  {title:"Tier 1 \u2014 Regex Rule Detection",release:"v0_2",product:"harpax-cli",status:"shipped",description:"11 built-in pattern rules detecting credential access, secret enumeration, and environment variable harvesting in real time."},
+  {title:"MCP Security Server",release:"v0_2",product:"harpax-cli",status:"shipped",description:"Model Context Protocol server exposing live_status, session_summary, explain_block, query_history, and skill_health tools to Claude Code."},
+  {title:"Pre-Tool Hook Enforcement",release:"v0_2",product:"harpax-cli",status:"shipped",description:"Claude Code hook integration that intercepts tool calls before execution. Blocks, warns, or allows based on multi-tier detection."},
+  {title:"Active Defense & Chain Detection",release:"v0_2",product:"harpax-cli",status:"shipped",description:"Behavioral analysis of subprocess chains. Detects multi-step attack patterns like reconnaissance followed by exfiltration."},
+  {title:"Tokyo Midnight GUI",release:"v0_2",product:"harpax-gui",status:"shipped",description:"PySide6 desktop app with live monitor, session replay, project management, and MCP skill scanner. Cross-platform builds for Windows, macOS, and Linux."},
+  {title:"Startup Verifier",release:"v0_2",product:"harpax-gui",status:"shipped",description:"Auto-discovery of Harpax binary, Claude Code hooks, MCP server, and session directory. Actionable diagnostics on first launch."},
+  {title:"Cross-Platform CI/CD",release:"v0_2",product:"platform",status:"shipped",description:"GitHub Actions workflow producing signed artifacts for Windows, macOS arm64, macOS amd64, and Linux. Pure Go builds with no native dependencies."},
+  {title:"Tier 2 \u2014 ML Semantic Detection",release:"q2_2026",product:"harpax-cli",status:"in-progress",description:"ONNX-based embedding model for semantic similarity scoring. Catches obfuscated and rephrased attacks that bypass regex rules. Runs locally \u2014 no telemetry."},
+  {title:"Network Exfiltration Guard",release:"q2_2026",product:"harpax-cli",status:"in-progress",description:"Block outbound HTTP POST to untrusted domains. Prevents data exfiltration via curl, wget, or HTTP libraries after credential harvesting."},
+  {title:"Install Wizard",release:"q2_2026",product:"harpax-gui",status:"in-progress",description:"One-click setup that auto-configures binary PATH, Claude Code hooks, and MCP server registration. Zero terminal commands required."},
+  {title:"Breach Notification System",release:"q2_2026",product:"harpax-gui",status:"planned",description:"Configurable alerts for policy violations. Supports desktop notifications, email, and webhook delivery channels."},
+  {title:"Tier 3 \u2014 LLM Judgment",release:"q2_2026",product:"harpax-cli",status:"in-progress",description:"Sends ambiguous tool calls to Claude for contextual risk assessment. Human-readable explanations for every block decision."},
+  {title:"Browser Extension \u2014 Content Monitor",release:"q3_2026",product:"integrations",status:"planned",description:"Chrome/Firefox extension monitoring AI agent activity in web-based coding environments. Content inspection and exfiltration detection."},
+  {title:"Harpax for Cursor",release:"q3_2026",product:"integrations",status:"planned",description:"Extend Harpax monitoring to Cursor IDE\u2019s AI agent workflows. Feature-parity with Claude Code integration."},
+  {title:"Harpax for OpenClaw",release:"q3_2026",product:"integrations",status:"planned",description:"Integration with OpenClaw agent framework. Policy enforcement and audit trail for open-source AI agent deployments."},
+  {title:"Governance Audit API",release:"q3_2026",product:"platform",status:"planned",description:"REST API for exporting structured audit logs to compliance tooling, SIEMs, and internal dashboards."},
+  {title:"Team Policy Sync",release:"q3_2026",product:"platform",status:"planned",description:"Centralized policy management for engineering orgs. Propagate rule sets across repos and workstations."},
+  {title:"Kernel Protection \u2014 Upstream Tracing",release:"q4_2026",product:"harpax-cli",status:"planned",description:"eBPF-based kernel-level monitoring with full upstream process tracing. Catches agent activity that bypasses userspace hooks."},
+  {title:"Multi-Agent Trace Correlation",release:"q4_2026",product:"platform",status:"planned",description:"Correlate activity across multiple concurrent AI agents in a single session. End-to-end causal trace view."},
+  {title:"Compliance Report Generator",release:"q4_2026",product:"platform",status:"planned",description:"One-click SOC 2 / ISO 27001 evidence packages generated from Harpax audit logs."},
+  {title:"Harpax for Copilot",release:"future",product:"integrations",status:"tentative",description:"GitHub Copilot Workspace monitoring support."},
+  {title:"Harpax Cloud",release:"future",product:"platform",status:"tentative",description:"Optional cloud sync for audit trails. Enables cross-device visibility, team dashboards, and org-level analytics."},
+  {title:"Regulatory Mapping Engine",release:"future",product:"platform",status:"tentative",description:"Map agent behaviors to regulatory frameworks (EU AI Act, NIST AI RMF). Automated gap analysis reports."}
+];
+
+var activeRelease = null;
+var activeProduct = 'all';
+
+function buildTimeline() {
+  var el = document.getElementById('timeline');
+  el.innerHTML = '';
+  RELEASES.forEach(function(r, i) {
+    if (i > 0) {
+      var conn = document.createElement('div');
+      conn.className = 'tl-connector';
+      if (RELEASES[i-1].status === 'released' && r.status === 'released') conn.className += ' done';
+      if (RELEASES[i-1].status === 'released' && r.status === 'current') conn.className += ' active';
+      el.appendChild(conn);
+    }
+    var node = document.createElement('div');
+    node.className = 'tl-node ' + r.status;
+    if (activeRelease === r.id) node.className += ' active';
+    node.innerHTML = '<div class="tl-dot"></div><div class="tl-label">' + r.label + '</div><div class="tl-sublabel">' + r.sublabel + '</div>';
+    node.onclick = function() {
+      activeRelease = activeRelease === r.id ? null : r.id;
+      buildTimeline();
+      renderCards();
+    };
+    el.appendChild(node);
+  });
+}
+
+function renderCards() {
+  var container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  var grouped = {};
+  RELEASES.forEach(function(r) { grouped[r.id] = []; });
+
+  CARDS.forEach(function(c) {
+    if (activeRelease && c.release !== activeRelease) return;
+    if (activeProduct !== 'all' && c.product !== activeProduct) return;
+    grouped[c.release].push(c);
+  });
+
+  RELEASES.forEach(function(r) {
+    var items = grouped[r.id];
+    if (!items || items.length === 0) return;
+
+    var header = document.createElement('div');
+    header.className = 'rm-release-header';
+    header.textContent = r.label + ' \u2014 ' + r.sublabel;
+    container.appendChild(header);
+
+    var grid = document.createElement('div');
+    grid.className = 'rm-grid';
+
+    items.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'rm-card ' + c.status;
+
+      var statusLabel = c.status.replace('-', ' ').toUpperCase();
+      var productLabel = c.product.replace('-', ' ').toUpperCase().replace('HARPAX CLI', 'HARPAX CLI').replace('HARPAX GUI', 'DESKTOP APP');
+
+      card.innerHTML =
+        '<div class="rm-card-header">' +
+          '<div class="rm-card-title">' + c.title + '</div>' +
+          '<div class="rm-card-badge ' + c.status + '">' + statusLabel + '</div>' +
+        '</div>' +
+        '<div class="rm-card-product">' + productLabel + '</div>' +
+        '<div class="rm-card-desc">' + c.description + '</div>';
+
+      grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+  });
+}
+
+// Filter buttons
+document.getElementById('filters').addEventListener('click', function(e) {
+  if (!e.target.classList.contains('filter-btn')) return;
+  activeProduct = e.target.getAttribute('data-filter');
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  e.target.classList.add('active');
+  renderCards();
+});
+
+buildTimeline();
+renderCards();
+</script>
+
+</body>
+</html>
