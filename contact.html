@@ -208,6 +208,7 @@
 <script>
 document.getElementById('contact-form').addEventListener('submit', function(e) {
   e.preventDefault();
+  var form = this;
   var btn = document.getElementById('submit-btn');
   var status = document.getElementById('form-status');
   btn.disabled = true;
@@ -215,20 +216,20 @@ document.getElementById('contact-form').addEventListener('submit', function(e) {
   status.textContent = '';
   status.style.color = '';
 
-  fetch(this.action, {
+  var formData = new FormData(form);
+  var params = new URLSearchParams();
+  formData.forEach(function(value, key) { params.append(key, value); });
+
+  fetch(form.action, {
     method: 'POST',
-    body: new FormData(this)
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
   })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.result === 'success') {
-      status.textContent = 'Message sent. We\u2019ll be in touch.';
-      status.style.color = '#7ee787';
-      document.getElementById('contact-form').reset();
-    } else {
-      status.textContent = 'Something went wrong. Try emailing contact@cambric.ai directly.';
-      status.style.color = '#f85149';
-    }
+  .then(function() {
+    status.textContent = 'Message sent. We\u2019ll be in touch.';
+    status.style.color = '#7ee787';
+    form.reset();
     btn.disabled = false;
     btn.textContent = 'Send message \u2192';
   })
