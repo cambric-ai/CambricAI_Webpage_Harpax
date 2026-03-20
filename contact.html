@@ -124,12 +124,13 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">Cambric<span> AI</span></a>
+  <a href="index.html" class="nav-logo">Cambric<span> AI</span></a>
   <div class="nav-links">
-    
     <a href="research.html">Research</a>
-    
-    <a href="#" class="nav-dl">Download →</a>
+    <a href="blog.html">Blog</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="index.html" class="nav-dl">Download →</a>
   </div>
 </nav>
 
@@ -139,13 +140,16 @@
   <!-- LEFT COLUMN — Form -->
   <div class="contact-form">
     <div class="section-label">// SEND A MESSAGE</div>
-    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+    <form id="contact-form" action="https://script.google.com/macros/s/AKfycbyKqrb_-s0Jys7_vsHAxz70Ap42SuJJI7pJISPXXQpdzXXLZ2nM23byc2jXzJOuVBRRTA/exec" method="POST">
 
       <label for="name">NAME</label>
       <input type="text" id="name" name="name" required>
 
       <label for="email">EMAIL</label>
       <input type="email" id="email" name="email" required>
+
+      <!-- Honeypot — hidden from humans, bots fill it -->
+      <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
 
       <label for="inquiry">INQUIRY TYPE</label>
       <select id="inquiry" name="inquiry" required>
@@ -160,7 +164,8 @@
       <label for="message">MESSAGE</label>
       <textarea id="message" name="message" rows="6" required></textarea>
 
-      <button type="submit" class="btn-p">Send message →</button>
+      <button type="submit" class="btn-p" id="submit-btn">Send message →</button>
+      <div id="form-status" style="margin-top:16px; font-size:11px; font-weight:300;"></div>
     </form>
   </div>
 
@@ -170,12 +175,12 @@
 
     <div class="info-block">
       <div class="info-label">EMAIL</div>
-      <div class="info-value">contact@cambricai.io</div>
+      <div class="info-value"><a href="mailto:contact@cambric.ai">contact@cambric.ai</a></div>
     </div>
 
     <div class="info-block">
-      <div class="info-label">GITHUB</div>
-      <div class="info-value">contact@cambricai.io</div>
+      <div class="info-label">GENERAL INQUIRIES</div>
+      <div class="info-value"><a href="mailto:contact@cambric.ai">contact@cambric.ai</a></div>
     </div>
 
     <div class="info-block">
@@ -188,7 +193,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <a href="#" class="footer-logo">Cambric AI</a>
+  <a href="index.html" class="footer-logo">Cambric AI</a>
   <div class="footer-links">
     
     
@@ -199,6 +204,42 @@
   </div>
   <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
 </footer>
+
+<script>
+document.getElementById('contact-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('submit-btn');
+  var status = document.getElementById('form-status');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  status.textContent = '';
+  status.style.color = '';
+
+  fetch(this.action, {
+    method: 'POST',
+    body: new FormData(this)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.result === 'success') {
+      status.textContent = 'Message sent. We\u2019ll be in touch.';
+      status.style.color = '#7ee787';
+      document.getElementById('contact-form').reset();
+    } else {
+      status.textContent = 'Something went wrong. Try emailing contact@cambric.ai directly.';
+      status.style.color = '#f85149';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Send message \u2192';
+  })
+  .catch(function() {
+    status.textContent = 'Connection error. Try emailing contact@cambric.ai directly.';
+    status.style.color = '#f85149';
+    btn.disabled = false;
+    btn.textContent = 'Send message \u2192';
+  });
+});
+</script>
 
 </body>
 </html>
