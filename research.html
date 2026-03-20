@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Research — Cambric AI</title>
 <meta name="description" content="AI governance research, conference presentations, and the Layered Intelligence Architecture framework.">
+<meta name="keywords" content="AI governance, AI session tracing, AI agent security, AI security research, Layered Intelligence Architecture, Harpax">
+<meta property="og:title" content="Research — Cambric AI">
+<meta property="og:description" content="AI governance research, conference presentations, and the Layered Intelligence Architecture framework.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cambric.ai/research.html">
+<meta property="og:image" content="https://cambric.ai/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Research — Cambric AI">
+<meta name="twitter:description" content="AI governance research, conference presentations, and the Layered Intelligence Architecture framework.">
+<link rel="canonical" href="https://cambric.ai/research.html">
 
 <!-- Favicon -->
 <link rel="icon" href="favicon.svg">
@@ -97,6 +107,9 @@
     letter-spacing: .04em;
   }
 
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+
   @media (max-width: 860px) {
     .research-hero { padding: 120px 24px 48px; }
     .research-section { padding: 48px 24px; }
@@ -104,6 +117,8 @@
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="content">
 
 <!-- NAV -->
 <nav>
@@ -167,5 +182,6 @@
   <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
 </footer>
 
+</div>
 </body>
 </html>

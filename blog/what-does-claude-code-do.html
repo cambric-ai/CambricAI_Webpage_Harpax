@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>What does Claude Code actually do to your codebase? — Cambric AI</title>
 <meta name="description" content="Most developers don't know what their AI assistant is doing under the hood. Here's what we found when we traced a real Claude Code session.">
+<meta name="keywords" content="Claude Code security, AI session tracing, AI coding assistant audit, what does Claude Code do, AI agent security, Harpax">
+<meta property="og:title" content="What does Claude Code actually do to your codebase? — Cambric AI">
+<meta property="og:description" content="Most developers don't know what their AI assistant is doing under the hood. Here's what we found when we traced a real Claude Code session.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://cambric.ai/blog/what-does-claude-code-do.html">
+<meta property="og:image" content="https://cambric.ai/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What does Claude Code actually do to your codebase?">
+<meta name="twitter:description" content="Most developers don't know what their AI assistant is doing under the hood. Here's what we found.">
+<link rel="canonical" href="https://cambric.ai/blog/what-does-claude-code-do.html">
 
 <!-- Favicon -->
 <link rel="icon" href="../favicon.svg">
@@ -102,6 +112,9 @@
     margin-bottom: 16px;
   }
 
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+
   @media (max-width: 860px) {
     .post-header { padding: 120px 24px 32px; }
     .post-body { padding: 32px 24px 64px; }
@@ -110,6 +123,8 @@
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="content">
 
 <!-- NAV -->
 <nav>
@@ -226,5 +241,6 @@
   <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
 </footer>
 
+</div>
 </body>
 </html>

@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blog — Cambric AI</title>
 <meta name="description" content="Writing from Cambric AI on AI security, session tracing, and building Harpax.">
+<meta name="keywords" content="AI security blog, AI session tracing, AI agent security, Harpax, AI coding assistant security, AI audit trail">
+<meta property="og:title" content="Blog — Cambric AI">
+<meta property="og:description" content="Writing from Cambric AI on AI security, session tracing, and building Harpax.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cambric.ai/blog.html">
+<meta property="og:image" content="https://cambric.ai/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Blog — Cambric AI">
+<meta name="twitter:description" content="Writing from Cambric AI on AI security, session tracing, and building Harpax.">
+<link rel="canonical" href="https://cambric.ai/blog.html">
 
 <!-- Favicon -->
 <link rel="icon" href="favicon.svg">
@@ -54,12 +64,17 @@
     line-height: 1.6;
   }
 
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+
   @media (max-width: 860px) {
     .blog-section { padding: 120px 24px 64px; }
   }
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="content">
 
 <!-- NAV -->
 <nav>
@@ -105,5 +120,6 @@
   <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
 </footer>
 
+</div>
 </body>
 </html>

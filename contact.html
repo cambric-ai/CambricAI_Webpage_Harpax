@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact — Cambric AI</title>
 <meta name="description" content="Get in touch with Cambric AI. Bug reports, enterprise inquiries, press, and partnerships.">
+<meta name="keywords" content="Cambric AI contact, AI security support, Harpax support, enterprise AI security, AI governance contact">
+<meta property="og:title" content="Contact — Cambric AI">
+<meta property="og:description" content="Get in touch with Cambric AI. Bug reports, enterprise inquiries, press, and partnerships.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cambric.ai/contact.html">
+<meta property="og:image" content="https://cambric.ai/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact — Cambric AI">
+<meta name="twitter:description" content="Get in touch with Cambric AI. Bug reports, enterprise inquiries, press, and partnerships.">
+<link rel="canonical" href="https://cambric.ai/contact.html">
 
 <!-- Favicon -->
 <link rel="icon" href="favicon.svg">
@@ -112,6 +122,9 @@
     line-height: 1.65;
   }
 
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+
   @media (max-width: 860px) {
     .contact-layout {
       grid-template-columns: 1fr;
@@ -121,6 +134,8 @@
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="content">
 
 <!-- NAV -->
 <nav>
@@ -243,5 +258,6 @@ document.getElementById('contact-form').addEventListener('submit', function(e) {
 });
 </script>
 
+</div>
 </body>
 </html>

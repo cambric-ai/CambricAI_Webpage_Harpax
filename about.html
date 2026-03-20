@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About — Cambric AI</title>
 <meta name="description" content="Cambric AI builds tools that give you visibility and control over AI systems.">
+<meta name="keywords" content="Cambric AI, antivirus for AI, AI session tracing, AI agent security, AI governance, Harpax">
+<meta property="og:title" content="About — Cambric AI">
+<meta property="og:description" content="Cambric AI builds tools that give you visibility and control over AI systems.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cambric.ai/about.html">
+<meta property="og:image" content="https://cambric.ai/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About — Cambric AI">
+<meta name="twitter:description" content="Cambric AI builds tools that give you visibility and control over AI systems.">
+<link rel="canonical" href="https://cambric.ai/about.html">
 
 <!-- Favicon -->
 <link rel="icon" href="favicon.svg">
@@ -48,6 +58,9 @@
     margin-bottom: 28px;
   }
 
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+
   @media (max-width: 860px) {
     .about-hero { padding: 120px 24px 48px; }
     .about-section { padding: 48px 24px; }
@@ -55,6 +68,8 @@
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="content">
 
 <!-- NAV -->
 <nav>
@@ -112,5 +127,6 @@
   <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
 </footer>
 
+</div>
 </body>
 </html>

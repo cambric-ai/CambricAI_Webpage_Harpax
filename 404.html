@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>404 — Cambric AI</title>
+<meta name="robots" content="noindex">
 
 <!-- Favicon -->
 <link rel="icon" href="favicon.svg">
@@ -39,12 +40,17 @@
     margin-bottom: 32px;
   }
 
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+
   @media (max-width: 860px) {
     .error-page { padding: 120px 24px 72px; }
   }
 </style>
 </head>
 <body>
+<div class="grid-bg"></div>
+<div class="content">
 
 <!-- NAV -->
 <nav>
@@ -80,5 +86,6 @@
   <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
 </footer>
 
+</div>
 </body>
 </html>
