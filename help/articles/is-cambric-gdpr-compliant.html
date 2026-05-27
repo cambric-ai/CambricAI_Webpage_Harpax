@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is Cambric AI GDPR compliant? — Cambric AI Help</title>
+<meta name="description" content="Harpax is local-only — data never leaves your machine. Cambric AI is actively working toward SOC 2, GDPR, and HIPAA compliance. Here's how Harpax's design supports those requirements today.">
+<link rel="canonical" href="https://cambric.ai/help/articles/is-cambric-gdpr-compliant.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/privacy-compliance.html">PRIVACY &amp; COMPLIANCE</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">GDPR COMPLIANCE</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Privacy &amp; Compliance &middot; 5 min read</div>
+  <h1>Is Cambric AI GDPR compliant?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Harpax is a local-only tool: the data it generates &mdash; session traces, detection events, audit logs &mdash; never leaves your machine. That architectural choice puts most GDPR concerns squarely in your control as the data subject. On the formal certification side, Cambric AI is actively working toward SOC 2, GDPR, and HIPAA compliance; we'll publish updates as each program advances.
+    </p>
+
+    <div class="callout warn">
+      <div class="callout-title">Compliance status</div>
+      <p>Cambric AI is <strong>in the process</strong> of pursuing formal SOC 2 Type II, GDPR, and HIPAA compliance. None of these certifications are completed today. This article describes how Harpax's design supports those requirements and what's already true about how your data is handled.</p>
+    </div>
+
+    <h2>Why local-only matters for GDPR</h2>
+    <p>GDPR governs how personal data is collected, processed, stored, and transferred. The fewer of those activities Cambric performs, the smaller the compliance surface and the more control you retain. Harpax is structured so that, for the data Harpax itself captures during a Claude Code session:</p>
+    <ul>
+      <li><strong>Cambric is not the data processor.</strong> Session JSONL files, detections, allowlists, and configuration are written to your filesystem under <code>~/.harpax/</code> &mdash; on your hardware, under your user account. Cambric AI has no access to them.</li>
+      <li><strong>There is no cross-border data transfer to manage.</strong> Nothing is uploaded to a Cambric-operated server, so there's no Schrems-II analysis to perform on the captured session data.</li>
+      <li><strong>Data-subject requests resolve to a local filesystem operation.</strong> You don't need to file an access or erasure request with Cambric to get to your Harpax data &mdash; it's already on disk, under your control.</li>
+    </ul>
+
+    <h2>The audit log Harpax generates</h2>
+    <p>Harpax produces detailed, structured audit logs as part of normal operation. For each Claude Code session, you get:</p>
+    <ul>
+      <li>A timestamped JSONL stream of every tool call, prompt, response, and detection at <code>~/.harpax/sessions/&lt;session-id&gt;.jsonl</code></li>
+      <li>An optional compressed long-term archive (SQLite) for fast historical queries</li>
+      <li>Daemon-level operational logs under <code>~/.harpax/logs/</code></li>
+    </ul>
+    <p>These logs are useful for GDPR-adjacent purposes &mdash; access-control auditing, incident investigation, demonstrating processing activities &mdash; and they're yours to retain, export, or delete on whatever schedule your organisation requires.</p>
+
+    <h2>Data-subject rights, and where they apply</h2>
+    <table>
+      <thead>
+        <tr><th>Right</th><th>How it's satisfied with Harpax</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Right of access</td>
+          <td>Open <code>~/.harpax/sessions/</code> &mdash; the data is on your machine in a documented format.</td>
+        </tr>
+        <tr>
+          <td>Right to erasure ("right to be forgotten")</td>
+          <td>Delete the files in <code>~/.harpax/</code>, or shorten <code>retention.max_age_days</code>, or set <code>cleanup_on_session_end: true</code>.</td>
+        </tr>
+        <tr>
+          <td>Right to data portability</td>
+          <td>JSONL is a portable, standards-friendly format. Use <code>harpax export</code> or copy the files directly.</td>
+        </tr>
+        <tr>
+          <td>Right to rectification</td>
+          <td>Session records are append-only by design (an audit log shouldn't be silently mutable). If a stored detection is inaccurate, you can quarantine or delete the affected session file and re-run with updated rules.</td>
+        </tr>
+        <tr>
+          <td>Right to object / restrict processing</td>
+          <td>Disable specific detection tiers in <code>~/.harpax/config.yaml</code>, switch to passive mode, or stop the daemon entirely.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>What Cambric AI does process</h2>
+    <p>Some limited personal data is processed by Cambric AI in roles where we are acting as a service provider rather than as the operator of Harpax itself:</p>
+    <ul>
+      <li><strong>Support correspondence.</strong> When you email <a href="mailto:contact@cambric.ai">contact@cambric.ai</a> or open a ticket on the service desk, Cambric stores your message, contact information, and any attachments you provide for as long as needed to resolve the issue.</li>
+      <li><strong>Billing data (when applicable).</strong> Paid subscriptions are processed through Stripe, which is the data processor for payment information. Cambric retains the billing-portal record (email, plan, invoice history) for accounting and tax purposes.</li>
+      <li><strong>Website analytics.</strong> Cambric.ai uses standard web traffic measurement. Refer to the site's privacy notice for current details.</li>
+    </ul>
+    <p>To exercise data-subject rights against any of the above (access, deletion, portability, objection), email <a href="mailto:contact@cambric.ai">contact@cambric.ai</a> and identify yourself with the address tied to the data.</p>
+
+    <h2>Working toward SOC 2, GDPR, and HIPAA</h2>
+    <p>Cambric AI is actively building out the policies, controls, and audit artefacts required for:</p>
+    <ul>
+      <li><strong>SOC 2 Type II</strong> &mdash; in progress. Targets the Trust Services Criteria around security, availability, and confidentiality.</li>
+      <li><strong>GDPR</strong> &mdash; in progress. Includes formal DPIA documentation, a sub-processor register, and a published DPA for customers who need one.</li>
+      <li><strong>HIPAA</strong> &mdash; in progress. Targets readiness to sign a Business Associate Agreement for healthcare customers using Harpax to monitor agents that touch PHI.</li>
+    </ul>
+    <p>None of these certifications are complete today. We do not advertise Harpax as a certified solution and customers in regulated environments should treat Harpax's local-only architecture as the primary compliance argument until formal attestations are available.</p>
+
+    <h2>Need a DPA or compliance documentation?</h2>
+    <p>If your organisation needs a Data Processing Agreement, a vendor security questionnaire completed, or a written statement covering Harpax's data flows for an internal audit, contact us at <a href="mailto:contact@cambric.ai">contact@cambric.ai</a>. We'll provide the most current documentation we have.</p>
+
+    <div class="callout">
+      <div class="callout-title">This article is informational, not legal advice</div>
+      <p>Compliance with GDPR or any other regulation depends on the specific context of your processing activities. The descriptions above explain how Harpax is architected and what Cambric does with the limited data it receives &mdash; they are not a legal opinion. Consult your DPO or counsel for advice on your specific situation.</p>
+    </div>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/how-is-my-data-used.html">How is my data used?</a>
+    <a href="/help/articles/how-does-cambric-ensure-data-safety.html">How does Cambric AI ensure my data's safety?</a>
+    <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">How do I connect with the Cambric team?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How does Harpax work? — Cambric AI Help</title>
+<meta name="description" content="Harpax watches every Claude Code session through three independent channels, runs each event through a layered detection pipeline, and either blocks the action, flags it, or lets it through.">
+<link rel="canonical" href="https://cambric.ai/help/articles/how-does-harpax-work.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/getting-started.html">GETTING STARTED</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">HOW DOES HARPAX WORK?</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Getting Started &middot; 7 min read</div>
+  <h1>How does Harpax work?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Harpax watches every Claude Code session through three independent channels, runs each event through a layered detection pipeline, and either blocks the action, flags it, or lets it through &mdash; all before the tool call actually executes.
+    </p>
+
+    <h2>The lifecycle of a tool call</h2>
+    <p>Here's what happens when Claude tries to do something:</p>
+    <ol>
+      <li>Claude generates a tool call (for example, <code>Bash: cat ~/.ssh/id_rsa</code>).</li>
+      <li>Claude Code fires a <code>PreToolUse</code> hook, which invokes Harpax's <code>hook-client</code> binary.</li>
+      <li>The hook client sends the event over a local IPC socket (default <code>127.0.0.1:9851</code>) to the Harpax daemon.</li>
+      <li>The daemon runs the event through the detection pipeline. If a critical or high-severity rule fires, the daemon returns a block verdict.</li>
+      <li>The hook client exits with code <code>2</code>, which Claude Code interprets as "do not execute this tool call." Claude sees the block and continues with other work.</li>
+      <li>The block appears in the Harpax GUI as a toast. You can Allow Once, Always Allow, or Deny. If you allow it, the action is re-injected into the session through Harpax's MCP server.</li>
+    </ol>
+    <p>All of this happens in under a few hundred milliseconds in the typical case &mdash; the daemon enforces a configurable hook timeout (default <code>2000ms</code>) so a stuck rule never freezes your session.</p>
+
+    <h2>Three monitoring channels</h2>
+
+    <h3>Channel 1 &mdash; Hooks (the enforcement layer)</h3>
+    <p>Claude Code's hook system fires synchronous events before and after every tool call, on every user prompt, and at session start and end. Harpax registers <code>PreToolUse</code>, <code>PostToolUse</code>, <code>UserPromptSubmit</code>, <code>SessionStart</code>, and <code>SessionEnd</code> hooks. Because hooks are synchronous, this is the only channel where Harpax can actually block an action.</p>
+
+    <h3>Channel 2 &mdash; I/O Tee (full conversation visibility)</h3>
+    <p>The shim tees Claude's stdin and stdout, giving Harpax the complete conversation stream. This is where Harpax sees the actual text Claude is producing &mdash; reasoning, messages to you, and content that hooks alone wouldn't show.</p>
+
+    <h3>Channel 3 &mdash; Event Stream (lifecycle and cost)</h3>
+    <p>An asynchronous event stream captures token usage, model selection, and session-level metadata. This feeds the cost tracker and the live monitor.</p>
+
+    <h2>The detection pipeline</h2>
+    <p>Each captured event runs through a tiered pipeline. Tiers are independent &mdash; you can enable or disable them in <code>~/.harpax/config.yaml</code> or the Settings page.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Tier</th>
+          <th>Method</th>
+          <th>Latency</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>T1</strong></td>
+          <td>Regex pattern matching against YAML-defined rules</td>
+          <td>Microseconds</td>
+          <td><span class="tag stable">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>T2</strong></td>
+          <td>Vector embedding similarity (ONNX model)</td>
+          <td>~10&ndash;50ms</td>
+          <td>Optional</td>
+        </tr>
+        <tr>
+          <td><strong>T2.5</strong></td>
+          <td>Cross-event sequence and state rules (JS)</td>
+          <td>Milliseconds</td>
+          <td><span class="tag stable">Active</span></td>
+        </tr>
+        <tr>
+          <td><strong>T3</strong></td>
+          <td>LLM review for ambiguous cases</td>
+          <td>Seconds</td>
+          <td>Optional</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>T1 and T2.5 are always on. T2 and T3 are opt-in because they require additional dependencies (an embedding model on disk, an LLM API key). Detections from each tier carry a confidence score; an escalation coordinator weighs them and produces a final verdict.</p>
+
+    <h2>Rules: built-in and your own</h2>
+    <p>Built-in rules ship in <code>internal/detection/builtin/</code> as YAML and cover prompt injection, memory poisoning, and skill threats (data exfiltration, credential access, permission bypass, code execution, persistence). You can write your own rules in JavaScript and drop them in <code>~/.harpax/rules/</code>; they hot-reload by default. JS rules have access to the current event, session history, and helpers like <code>block()</code>, <code>flag()</code>, and <code>alert()</code>.</p>
+
+    <pre><code>// Example: block network egress after credential exposure
+if (session.has("credential_exposed") &amp;&amp;
+    event.type === "pre_tool" &amp;&amp;
+    /curl|wget|Invoke-WebRequest|WebFetch/.test(JSON.stringify(event.parsed))) {
+  block("network egress blocked &mdash; credential exposure in session history");
+  alert("critical", "Attempted network egress after credential exposure");
+}</code></pre>
+
+    <h2>Active vs. passive mode</h2>
+    <p>Harpax ships in <strong>passive mode</strong> by default. Detections are logged and surfaced in the GUI, but nothing is blocked &mdash; useful for learning what your agent actually does. Flip to <strong>active mode</strong> in Settings when you're ready to start enforcing.</p>
+
+    <div class="callout warn">
+      <div class="callout-title">Severity actions are configurable</div>
+      <p>In active mode, the default mapping is: <code>critical</code> &rarr; block, <code>high</code> &rarr; warn, <code>medium</code>/<code>low</code> &rarr; log. Tighten or loosen these in <code>configs/default.yaml</code> under <code>protection.severity_actions</code>.</p>
+    </div>
+
+    <h2>Override system</h2>
+    <p>When Harpax blocks an action, the GUI shows an override toast with three choices:</p>
+    <ul>
+      <li><strong>Allow Once.</strong> A 60-second temporary allowlist entry is created and the action is re-injected into the Claude session.</li>
+      <li><strong>Always Allow.</strong> The pattern is added permanently to <code>~/.harpax/allowlist.yaml</code>. Future matching actions pass through automatically.</li>
+      <li><strong>Deny.</strong> The block stands.</li>
+    </ul>
+    <p>No decision within 30 seconds (configurable via <code>autoDenyTimeout</code>) means automatic deny. This is intentional: a session that's waiting for human review should not silently approve actions just because you stepped away from the keyboard.</p>
+
+    <h2>Storage and retention</h2>
+    <p>Sessions are written as JSONL to <code>~/.harpax/sessions</code>. After a configurable delay (default 5 minutes after session end), JSONL files are compressed and ingested into a local SQLite archive for fast historical queries. Raw JSONL is deleted after the retention period (default 90 days).</p>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/what-is-harpax.html">What is Harpax?</a>
+    <a href="/help/articles/what-threats-does-harpax-defend-against.html">What threats does Harpax defend against?</a>
+    <a href="/help/articles/how-does-cambric-conduct-defense-research.html">How does Cambric AI conduct defense research?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

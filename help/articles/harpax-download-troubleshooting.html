@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harpax download troubleshooting — Cambric AI Help</title>
+<meta name="description" content="What to do when Harpax won't download, won't launch, or launches but doesn't start monitoring your sessions.">
+<link rel="canonical" href="https://cambric.ai/help/articles/harpax-download-troubleshooting.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/account-support.html">ACCOUNT &amp; SUPPORT</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">DOWNLOAD TROUBLESHOOTING</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Account &amp; Support &middot; 6 min read</div>
+  <h1>Harpax download troubleshooting</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      This page covers what to do when Harpax won't download, won't launch, or launches but doesn't start monitoring your sessions. Work through the symptoms in order &mdash; most issues are caught by the Launch page's automatic health checks.
+    </p>
+
+    <h2>Start here: run the health checks</h2>
+    <p>Every time you open Harpax, the Launch page runs a battery of automated checks. If any of them fail, that's almost always the right place to start:</p>
+    <ul>
+      <li>Daemon binary is present and executable</li>
+      <li>Claude hooks are correctly configured in <code>settings.json</code></li>
+      <li>The Harpax MCP server is registered with Claude</li>
+      <li>The sessions directory exists and is writable</li>
+      <li>Your config file is valid YAML</li>
+      <li>Ports <code>9850</code>, <code>9851</code>, and <code>9852</code> are available</li>
+    </ul>
+    <p>Failed checks often display a <strong>Fix</strong> button that resolves them automatically. Try that first.</p>
+
+    <h2>Symptom: the download failed or the installer won't run</h2>
+    <p><em>Pre-installation issues depend on how you obtained Harpax (direct download, package manager, etc.). Once you have a binary in hand, jump to the next section.</em></p>
+    <ul>
+      <li><strong>Browser blocked the download.</strong> Some browsers flag newly published binaries until they reach a reputation threshold. Choose "Keep" or "Allow" in your browser's download manager.</li>
+      <li><strong>Windows SmartScreen warning.</strong> Click <em>More info</em> &rarr; <em>Run anyway</em>. The warning appears for any binary that hasn't accumulated enough installations to be recognized.</li>
+      <li><strong>macOS Gatekeeper warning.</strong> Right-click the app, choose <em>Open</em>, then confirm. Do not double-click on first run.</li>
+      <li><strong>Antivirus quarantine.</strong> Add an exclusion for the Harpax binary and the <code>~/.harpax/</code> directory.</li>
+    </ul>
+
+    <h2>Symptom: Harpax launches but the daemon won't start</h2>
+    <p>Open a terminal and run <code>harpax serve</code> directly &mdash; the output will point at the problem. The most common causes:</p>
+
+    <h3>Port conflict</h3>
+    <p>Harpax needs three loopback ports:</p>
+    <ul>
+      <li><code>9850</code> &mdash; WebSocket bridge (GUI &harr; daemon)</li>
+      <li><code>9851</code> &mdash; IPC server (hook verdicts)</li>
+      <li><code>9852</code> &mdash; MCP server (allowed-action re-injection)</li>
+    </ul>
+    <p>If another process is holding any of these, the daemon will refuse to start. Find and stop the conflicting process, or change the ports in <code>~/.harpax/config.yaml</code> under the <code>shim</code> block.</p>
+    <pre><code># Windows
+netstat -ano | findstr "9850 9851 9852"
+
+# macOS / Linux
+lsof -i :9850 -i :9851 -i :9852</code></pre>
+
+    <h3>Sessions directory not writable</h3>
+    <p>Harpax writes JSONL session files to <code>~/.harpax/sessions</code> by default. If that path isn't writable (permissions issue, full disk, or a custom path that doesn't exist), the daemon fails on startup. Create the directory manually if needed, or override the path in <code>config.yaml</code>:</p>
+    <pre><code>storage:
+  path: /a/path/you/can/write/to</code></pre>
+
+    <h2>Symptom: Harpax is running but isn't seeing any session activity</h2>
+    <p>The daemon is up, the GUI shows "Connected," but nothing appears in the live monitor when you use Claude Code. This is almost always a hook configuration problem.</p>
+
+    <div class="callout warn">
+      <div class="callout-title">Windows: settings.json paths must use forward slashes</div>
+      <p>Claude's hook runner cannot parse Windows backslash paths in <code>settings.json</code>. If you edited the file manually and used backslashes, the hooks will silently fail to spawn.</p>
+      <p>Re-run Harpax's startup auto-configuration (or click <strong>Fix</strong> on the Hooks health check), which writes the path with forward slashes via <code>filepath.ToSlash()</code>.</p>
+    </div>
+
+    <h3>Other hook issues to check</h3>
+    <ul>
+      <li><strong>Hook client binary is missing.</strong> The hook entry in <code>settings.json</code> points to <code>hook-client.exe</code> (or its Unix equivalent). Make sure the file exists at that exact path.</li>
+      <li><strong>Claude Code isn't reading the right settings file.</strong> Claude looks at user-level settings first, then project-level. Confirm which file Harpax wrote to via the Setup page in the GUI.</li>
+      <li><strong>Hooks are configured for the wrong events.</strong> Harpax needs <code>PreToolUse</code>, <code>PostToolUse</code>, <code>UserPromptSubmit</code>, <code>SessionStart</code>, and <code>SessionEnd</code>. If only some are registered, only some events will arrive.</li>
+      <li><strong>Hook timeout too low.</strong> The default <code>performance.hook_timeout_ms</code> is <code>2000</code>. On slow disks or constrained machines, hooks can time out before the daemon responds &mdash; raise the limit if you see <code>warn_on_slow_hook</code> messages in the logs.</li>
+    </ul>
+
+    <h2>Symptom: blocks aren't enforced</h2>
+    <p>Events appear in the live monitor and detections fire, but dangerous tool calls still execute. The most likely cause:</p>
+    <ul>
+      <li><strong>You're in passive mode.</strong> Passive mode logs everything but never blocks. Switch <code>protection.mode</code> to <code>active</code> in your config (or use the Shim Mode toggle on the Settings page).</li>
+      <li><strong>The detection fired at a non-critical level.</strong> By default, only <code>critical</code> severity blocks; <code>high</code> warns. Adjust <code>protection.severity_actions</code> if you want a stricter posture.</li>
+      <li><strong>The pattern is in your allowlist.</strong> Check <code>~/.harpax/allowlist.yaml</code> or the Allowlist section in Settings.</li>
+    </ul>
+
+    <h2>Where to look for logs</h2>
+    <ul>
+      <li><code>~/.harpax/logs/daemon.log</code> &mdash; daemon output, including hook IPC events and detection decisions</li>
+      <li><code>~/.harpax/sessions/&lt;session-id&gt;.jsonl</code> &mdash; raw event stream for a specific session</li>
+      <li>The browser dev tools console inside the GUI for frontend errors</li>
+    </ul>
+
+    <h2>Still stuck?</h2>
+    <p>If you've worked through the checks above and Harpax still isn't behaving, open a support ticket. Include:</p>
+    <ul>
+      <li>Operating system and version</li>
+      <li>Harpax version (run <code>harpax version</code>)</li>
+      <li>The output of <code>harpax serve</code> from a terminal</li>
+      <li>The contents of <code>settings.json</code> (with any secrets redacted)</li>
+      <li>A recent session JSONL file if the issue is detection-related</li>
+    </ul>
+    <p>See <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">How do I connect with the Cambric team?</a> for the support channels.</p>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/how-do-i-download-harpax.html">How do I download Harpax?</a>
+    <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">How do I connect with the Cambric team?</a>
+    <a href="/help/articles/how-does-harpax-work.html">How does Harpax work?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

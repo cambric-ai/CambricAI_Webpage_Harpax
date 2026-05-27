@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How does Cambric AI ensure my data's safety? — Cambric AI Help</title>
+<meta name="description" content="Harpax is built around four safety principles: keep data local, expose nothing to the network that doesn't need to be exposed, sandbox anything user-supplied, and fail closed by default.">
+<link rel="canonical" href="https://cambric.ai/help/articles/how-does-cambric-ensure-data-safety.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/privacy-compliance.html">PRIVACY &amp; COMPLIANCE</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">DATA SAFETY</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Privacy &amp; Compliance &middot; 5 min read</div>
+  <h1>How does Cambric AI ensure my data's safety?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Harpax is built around four safety principles: keep data local, expose nothing to the network that doesn't need to be exposed, sandbox anything user-supplied, and fail closed by default. Here's what each of those means in practice.
+    </p>
+
+    <h2>1. Local by default</h2>
+    <p>Captured sessions, detections, rules, and configuration all live on your machine under <code>~/.harpax/</code>. There is no Cambric-hosted backend that mirrors your session data. The daemon runs as a normal process under your user account and only has the permissions you have.</p>
+    <p>Because nothing is centralized, there is no Cambric data store that an attacker could compromise to gain access to your sessions.</p>
+
+    <h2>2. Loopback-only network surface</h2>
+    <p>The daemon binds three ports, and all three bind to <code>127.0.0.1</code> only. They are not reachable from your local network and they are not exposed to the internet.</p>
+    <ul>
+      <li><code>127.0.0.1:9850</code> &mdash; WebSocket bridge between the GUI and the daemon</li>
+      <li><code>127.0.0.1:9851</code> &mdash; IPC channel for hook verdicts</li>
+      <li><code>127.0.0.1:9852</code> &mdash; MCP server for re-injecting allowed actions</li>
+    </ul>
+    <p>The IPC channel uses a fixed identity handshake (a magic string baked into every Harpax binary) so the hook client can verify it's connecting to a real Harpax daemon and not some other process that happens to have grabbed the port.</p>
+
+    <h2>3. Sandboxed rule execution</h2>
+    <p>Custom JavaScript rules live in <code>~/.harpax/rules/</code> and are loaded into a sandboxed JS runtime with a hard execution timeout (default <code>10ms</code> per rule). A misbehaving rule can't hang the detection pipeline, allocate unbounded memory, or read files outside its declared inputs.</p>
+    <p>Rules receive only the current event and a read-only view of session history. They cannot make network calls, spawn processes, or write to disk.</p>
+
+    <h2>4. Fail closed</h2>
+    <p>Several places in Harpax are designed so that a failure or ambiguous situation results in <em>more</em> safety, not less:</p>
+    <ul>
+      <li><strong>Override auto-deny.</strong> A blocked tool call that doesn't get a human decision within 30 seconds is denied automatically. Walking away from the keyboard never silently approves an action.</li>
+      <li><strong>Hook timeout.</strong> If the daemon doesn't respond within the configured timeout, the hook returns an explicit signal &mdash; not a silent success.</li>
+      <li><strong>Allowlist matching.</strong> Allowlist entries use strict patterns (<code>tool_name:glob_pattern</code>); only exact matches pass through. There's no fuzzy fallback that could approve an unintended action.</li>
+      <li><strong>Passive mode is opt-out, not opt-in for blocking.</strong> Active mode is what enforces. You make a deliberate choice to enable it; you don't have to remember to keep it on.</li>
+    </ul>
+
+    <h2>What you control</h2>
+    <table>
+      <thead>
+        <tr><th>Control</th><th>Where</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Storage location for session data</td>
+          <td><code>storage.path</code> in <code>~/.harpax/config.yaml</code></td>
+        </tr>
+        <tr>
+          <td>How long sessions are retained</td>
+          <td><code>retention.max_age_days</code></td>
+        </tr>
+        <tr>
+          <td>Whether sessions are deleted on session end</td>
+          <td><code>retention.cleanup_on_session_end</code></td>
+        </tr>
+        <tr>
+          <td>Which detection tiers are active</td>
+          <td><code>detection.tier2.enabled</code> / <code>detection.tier3.enabled</code></td>
+        </tr>
+        <tr>
+          <td>Whether the daemon sends alerts outbound</td>
+          <td><code>alert.*</code> blocks (webhook, email)</td>
+        </tr>
+        <tr>
+          <td>Which patterns are pre-approved</td>
+          <td><code>~/.harpax/allowlist.yaml</code> or the Allowlist panel in Settings</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Operational practices</h2>
+    <ul>
+      <li><strong>Reproducible builds.</strong> Harpax binaries are built from the public source tree. The build commit and version are visible in <code>harpax version</code> and on the About row of the Settings page.</li>
+      <li><strong>Open detection rules.</strong> Every built-in rule lives in <code>internal/detection/builtin/</code> with its references, severity, and known false positives in the open. You can audit exactly what triggers a block.</li>
+      <li><strong>Responsible disclosure.</strong> Security issues should be reported to <a href="mailto:contact@cambric.ai">contact@cambric.ai</a> &mdash; see <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">How do I connect with the Cambric team?</a></li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="callout-title">If you enable opt-in integrations</div>
+      <p>Webhooks, email, and Tier 3 LLM review send data to providers you configure. Those providers' security practices &mdash; not Cambric's &mdash; govern that data once it leaves your machine. Configure conservatively, and prefer same-host or VPC-local endpoints where possible.</p>
+    </div>
+
+    <h2>What this article does <em>not</em> claim</h2>
+    <p>Some safety claims are outside the scope of what a local-first tool can guarantee, and Harpax doesn't pretend otherwise:</p>
+    <ul>
+      <li>Harpax doesn't encrypt your local session files at rest beyond whatever full-disk encryption you've already enabled on your operating system. If your filesystem is unencrypted, your Harpax data is too.</li>
+      <li>Harpax doesn't protect against an attacker who already has user-level access to your machine. Once they're in your account, they have what Harpax has.</li>
+      <li>Harpax doesn't prevent <em>you</em> from approving a dangerous action by clicking Allow. The override system is there to give you a decision point, not to second-guess your decision.</li>
+    </ul>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/how-is-my-data-used.html">How is my data used?</a>
+    <a href="/help/articles/is-cambric-gdpr-compliant.html">Is Cambric AI GDPR compliant?</a>
+    <a href="/help/articles/what-threats-does-harpax-defend-against.html">What threats does Harpax defend against?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

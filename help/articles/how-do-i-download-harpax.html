@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How do I download Harpax? — Cambric AI Help</title>
+<meta name="description" content="Harpax Desktop is available as a free demo download for macOS, Windows, and Linux. Install in a few minutes — no account, no telemetry, runs entirely on your machine.">
+<link rel="canonical" href="https://cambric.ai/help/articles/how-do-i-download-harpax.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/getting-started.html">GETTING STARTED</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">HOW DO I DOWNLOAD HARPAX?</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Getting Started &middot; 5 min read</div>
+  <h1>How do I download Harpax?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Harpax Desktop is available as a free demo download for macOS, Windows, and Linux. The demo installs in a few minutes, runs entirely on your machine, and requires no account. A full general-availability release will be announced at a later date.
+    </p>
+
+    <div class="callout">
+      <div class="callout-title">Demo phase</div>
+      <p>Harpax is currently in demo. If you need a production deployment, custom packaging, or an enterprise rollout, please reach out via <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">our support channels</a> and we'll work with you directly.</p>
+    </div>
+
+    <h2>1. Pick your platform</h2>
+    <p>Download the demo package for your operating system from the <a href="/download.html">Cambric AI download page</a>:</p>
+
+    <table>
+      <thead>
+        <tr><th>Platform</th><th>Architecture</th><th>Package</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>macOS</strong></td>
+          <td>Apple Silicon (arm64)</td>
+          <td><code>HarpaxDesktop-macos-arm64.zip</code></td>
+        </tr>
+        <tr>
+          <td><strong>Windows</strong></td>
+          <td>Windows 10+ x64</td>
+          <td><code>HarpaxDesktop-windows-amd64.zip</code></td>
+        </tr>
+        <tr>
+          <td><strong>Linux</strong></td>
+          <td>x64 (AppImage)</td>
+          <td><code>HarpaxDesktop-linux-amd64.zip</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. Check the prerequisites</h2>
+    <p>Before installing, make sure you have:</p>
+    <ul>
+      <li><strong>Claude Code</strong> installed and authenticated. Harpax monitors Claude Code sessions, so you need a working Claude Code install first.</li>
+      <li><strong>Node.js 18+</strong> (required by Claude Code itself).</li>
+      <li><strong>A supported OS:</strong> macOS 12+, Windows 10+, or a modern Linux distribution.</li>
+    </ul>
+
+    <h2>3. Install</h2>
+    <p>The install flow is the same on every platform: unpack, launch, start the backend, install hooks. Pick your OS below.</p>
+
+    <h3>macOS</h3>
+    <pre><code># Unzip the download
+cd ~/Downloads
+unzip HarpaxDesktop-macos-arm64.zip
+
+# Clear macOS quarantine flag (the app isn't notarized yet)
+xattr -cr HarpaxDesktop.app
+
+# Open the app
+open HarpaxDesktop.app</code></pre>
+    <p>Then symlink the bundled backend binary to your PATH and start it:</p>
+    <pre><code># Find the bundled binary inside the app
+find ~/Downloads/HarpaxDesktop.app -name "harpax-darwin*"
+
+# Symlink it to PATH (use the full path from above)
+sudo ln -sf /full/path/from/above /usr/local/bin/harpax
+
+# Start the backend
+harpax serve</code></pre>
+
+    <h3>Windows</h3>
+    <pre><code># Extract the zip
+Expand-Archive -Path ~\Downloads\HarpaxDesktop-windows-amd64.zip -DestinationPath ~\Downloads\HarpaxDesktop
+
+# Launch the app
+~\Downloads\HarpaxDesktop\HarpaxDesktop.exe</code></pre>
+    <p>Find and start the bundled backend:</p>
+    <pre><code># Find the backend binary
+dir ~\Downloads\HarpaxDesktop\ /s /b | findstr harpax-win
+
+# Start the backend
+.\path\to\harpax-win-amd64.exe serve</code></pre>
+
+    <div class="callout warn">
+      <div class="callout-title">Windows SmartScreen warning</div>
+      <p>Because the demo build is not yet code-signed, Windows may show a SmartScreen prompt. Click <strong>More info</strong> &rarr; <strong>Run anyway</strong>.</p>
+    </div>
+
+    <h3>Linux</h3>
+    <pre><code># Unzip
+cd ~/Downloads
+unzip HarpaxDesktop-linux-amd64.zip
+
+# Make the AppImage executable
+chmod +x HarpaxDesktop.AppImage
+
+# Launch
+./HarpaxDesktop.AppImage</code></pre>
+    <p>Symlink the bundled backend:</p>
+    <pre><code># Find the backend binary
+find ~/Downloads/ -name "harpax-linux*"
+
+# Symlink to PATH
+sudo ln -sf /full/path/from/above /usr/local/bin/harpax
+
+# Start the backend
+harpax serve</code></pre>
+
+    <div class="callout warn">
+      <div class="callout-title">AppImage on some distros needs FUSE</div>
+      <p>If the AppImage refuses to launch, install FUSE: <code>sudo apt install libfuse2</code></p>
+    </div>
+
+    <h2>4. Install Harpax's hooks into Claude Code</h2>
+    <p>Harpax monitors Claude Code sessions through hook entries in your Claude config. The simplest way to install them: open Claude Code and tell it,</p>
+    <pre><code>"Add Harpax hooks to my ~/.claude/settings.json"</code></pre>
+    <p>Claude Code has filesystem access and will add the hook entries automatically. No CLI command needed.</p>
+
+    <h2>5. Verify the install</h2>
+    <p>You're set up correctly when all four of these are true:</p>
+    <ul>
+      <li>The Harpax Desktop app is open and shows a green "Connected" status.</li>
+      <li><code>harpax serve</code> is running in a terminal (or as a background service).</li>
+      <li>Your <code>~/.claude/settings.json</code> contains Harpax hook entries.</li>
+      <li>The Launch page in the GUI shows all health checks passing.</li>
+    </ul>
+    <p>Start a Claude Code session and you should see events streaming into the live monitor within seconds.</p>
+
+    <h2>What about a full / production release?</h2>
+    <p>Harpax is currently in <strong>demo phase</strong>. The publicly downloadable packages on cambric.ai are intended for evaluation and individual use. We are not yet offering a full general-availability release &mdash; that will be announced separately.</p>
+    <p>If you'd like to discuss a production deployment, custom packaging, an enterprise rollout, or pilot terms, please contact us via the <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">Cambric support channels</a> or email <a href="mailto:contact@cambric.ai">contact@cambric.ai</a> directly.</p>
+
+    <div class="callout">
+      <div class="callout-title">Stuck?</div>
+      <p>If a download fails, the app won't open, or the backend won't start, see <a href="/help/articles/harpax-download-troubleshooting.html">Harpax download troubleshooting</a>.</p>
+    </div>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/harpax-download-troubleshooting.html">Harpax download troubleshooting</a>
+    <a href="/help/articles/how-do-i-create-an-account.html">How do I create an account?</a>
+    <a href="/help/articles/what-is-harpax.html">What is Harpax?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

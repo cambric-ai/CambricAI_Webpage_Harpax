@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is Harpax? — Cambric AI Help</title>
+<meta name="description" content="Harpax is a security and governance runtime for AI agents — it watches every action your agent takes and stops the ones that look dangerous before they execute.">
+<link rel="canonical" href="https://cambric.ai/help/articles/what-is-harpax.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/getting-started.html">GETTING STARTED</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">WHAT IS HARPAX?</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Getting Started &middot; 4 min read</div>
+  <h1>What is Harpax?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Harpax is a security and governance runtime for AI agents. It sits between you and Claude Code, watching every action your agent takes &mdash; the tools it calls, the commands it runs, the files it reads, the prompts it receives &mdash; and stops the ones that look dangerous before they execute.
+    </p>
+
+    <h2>The problem Harpax solves</h2>
+    <p>Modern AI agents are powerful because they can act on your behalf: run shell commands, read your files, fetch URLs, install packages. That same capability is what makes them risky. A single injected instruction in a webpage, a tampered MCP skill, or a stray prompt can turn an agent that was helping you debug into one that exfiltrates credentials, modifies your shell profile, or makes outbound network calls you never asked for.</p>
+    <p>Most existing tooling for AI agents trusts the model to behave. Harpax assumes the opposite &mdash; that any tool call could be the wrong one &mdash; and verifies each action against a layered detection pipeline before letting it run.</p>
+
+    <h2>What Harpax actually does</h2>
+    <p>Three things, continuously, while your Claude Code session is running:</p>
+
+    <h3>1. Observes</h3>
+    <p>Harpax captures every event in a Claude Code session through three channels: the hook system (synchronous tool-call interception), an I/O tee (the conversation stream), and an event stream (token usage, model selection, session lifecycle). Together these give Harpax full visibility into what the agent is doing, what it saw, and what it's about to do next.</p>
+
+    <h3>2. Decides</h3>
+    <p>Every captured event runs through a multi-tier detection pipeline. Fast regex rules catch known-bad patterns &mdash; credential exposure, prompt injection, jailbreak attempts, recon commands. Sequence rules catch multi-step attacks that no single event would reveal (for example, a credential read followed by an outbound <code>curl</code>). Higher tiers using embeddings and LLM review are available for ambiguous cases.</p>
+
+    <h3>3. Enforces</h3>
+    <p>When a high-severity detection fires, Harpax blocks the tool call before it executes. You see a toast in the live monitor and can <strong>Allow Once</strong>, <strong>Always Allow</strong>, or <strong>Deny</strong>. If you don't decide within 30 seconds, the action is denied automatically &mdash; safe by default.</p>
+
+    <h2>How it runs on your machine</h2>
+    <p>Harpax is a desktop application. A small Go daemon runs locally and listens on three loopback ports (the WebSocket bridge, the IPC channel for hook verdicts, and an MCP server for re-injecting allowed actions). A Tauri-based GUI gives you the live monitor, session history, rules editor, and skill scanner.</p>
+    <p>Sessions are stored as JSONL on disk under <code>~/.harpax/sessions</code>, with configurable retention. Nothing leaves your machine unless you wire up a webhook or enable an external LLM tier yourself.</p>
+
+    <div class="callout">
+      <div class="callout-title">Local-first by design</div>
+      <p>Harpax runs entirely on your device. There is no required cloud account, no telemetry pipeline, and no shared state between users.</p>
+    </div>
+
+    <h2>What Harpax is <em>not</em></h2>
+    <ul>
+      <li><strong>Not a model.</strong> Harpax doesn't generate text or replace Claude. It observes the model your agent is already using.</li>
+      <li><strong>Not an antivirus.</strong> Harpax is scoped to AI agent activity inside Claude Code sessions, not arbitrary processes on your machine.</li>
+      <li><strong>Not an audit-only tool.</strong> Active mode blocks; passive mode logs. You choose the posture.</li>
+    </ul>
+
+    <h2>Who Harpax is for</h2>
+    <ul>
+      <li>Developers giving Claude Code access to production-adjacent systems</li>
+      <li>Security teams writing detection rules for agentic workflows</li>
+      <li>Researchers studying agent behavior and attack surfaces</li>
+      <li>Anyone running long-lived agent sessions on machines that matter</li>
+    </ul>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/how-does-harpax-work.html">How does Harpax work?</a>
+    <a href="/help/articles/what-threats-does-harpax-defend-against.html">What threats does Harpax defend against?</a>
+    <a href="/help/articles/how-do-i-download-harpax.html">How do I download Harpax?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

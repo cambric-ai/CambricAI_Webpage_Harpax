@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How is my data used? — Cambric AI Help</title>
+<meta name="description" content="Harpax is local-first. Sessions, prompts, tool calls, and detections stay on your machine. Nothing is transmitted to Cambric AI unless you explicitly turn on an integration.">
+<link rel="canonical" href="https://cambric.ai/help/articles/how-is-my-data-used.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/privacy-compliance.html">PRIVACY &amp; COMPLIANCE</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">HOW IS MY DATA USED?</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Privacy &amp; Compliance &middot; 5 min read</div>
+  <h1>How is my data used when I interact with Cambric AI or use Harpax?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Harpax is a local-first product. The sessions, prompts, tool calls, and detections that Harpax processes stay on your machine by default. Nothing is transmitted to Cambric AI unless you explicitly turn on an integration that does so &mdash; and the integrations that do exist are off by default.
+    </p>
+
+    <h2>What Harpax captures</h2>
+    <p>While a Claude Code session is running, Harpax captures:</p>
+    <ul>
+      <li>Every tool call (the tool name and its arguments)</li>
+      <li>Tool execution results returned to the model</li>
+      <li>User prompts you submit</li>
+      <li>The model's responses (messages and reasoning content)</li>
+      <li>Session lifecycle events (start, end, token usage, model selection)</li>
+      <li>Detection results produced by the rules engine</li>
+    </ul>
+    <p>All of this is necessary for Harpax to do its job &mdash; you can't enforce a detection on an event the daemon never saw.</p>
+
+    <h2>Where the data lives</h2>
+    <p>Captured events are written to JSONL files in <code>~/.harpax/sessions</code> (configurable). After a configurable delay following session end, the JSONL is compressed and ingested into a local SQLite database for fast historical queries. The raw JSONL is deleted after the retention window expires.</p>
+    <p>All of this lives on your machine, under your user account, in the file system you already control. Cambric AI has no access to it.</p>
+
+    <h2>What leaves your machine (and only if you turn it on)</h2>
+    <p>A small number of Harpax features can send data off-device. Each one is off by default and individually opt-in:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Default</th>
+          <th>What gets sent, and to whom</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Webhook alerts</strong></td>
+          <td>Off</td>
+          <td>Detection alerts to a URL <em>you</em> configure (e.g., a Slack incoming webhook). Cambric isn't in the loop.</td>
+        </tr>
+        <tr>
+          <td><strong>Email alerts</strong></td>
+          <td>Off</td>
+          <td>SMTP messages through a server <em>you</em> configure. Sent to the address you set.</td>
+        </tr>
+        <tr>
+          <td><strong>Tier 3 LLM review</strong></td>
+          <td>Off</td>
+          <td>Event summaries to a third-party LLM provider <em>you</em> configure (Anthropic, OpenAI, etc.) using <em>your</em> API key. Cambric does not proxy this traffic.</td>
+        </tr>
+        <tr>
+          <td><strong>Threat intelligence feeds</strong></td>
+          <td>Off</td>
+          <td>Outbound requests to feed URLs <em>you</em> list, to fetch updated detection patterns.</td>
+        </tr>
+        <tr>
+          <td><strong>Session summaries</strong></td>
+          <td>Off</td>
+          <td>Session content to a summary provider <em>you</em> configure.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>What Cambric AI does <em>not</em> collect</h2>
+    <p>Out of the box, Harpax does not:</p>
+    <ul>
+      <li>Send your sessions, prompts, or tool calls to Cambric servers</li>
+      <li>Phone home with telemetry, crash reports, or usage analytics</li>
+      <li>Require an account or login to use the product</li>
+      <li>Share data between users or aggregate it across installations</li>
+    </ul>
+    <p>The daemon does maintain a small internal identity for its own purposes &mdash; a build version and a fixed magic string used so the GUI can confirm it's talking to the right daemon process &mdash; but nothing about that is transmitted off your machine.</p>
+
+    <h2>When you contact us directly</h2>
+    <p>Information you send to <a href="mailto:contact@cambric.ai">contact@cambric.ai</a> or to the Cambric service desk is processed in order to respond to your inquiry. If your message includes log excerpts or session data, we use that content only to diagnose the issue you reported.</p>
+    <p>Please redact secrets before sending. We'd rather get a redacted log than an unredacted one.</p>
+
+    <h2>Your data, your control</h2>
+    <ul>
+      <li>Change the storage location: edit <code>storage.path</code> in <code>~/.harpax/config.yaml</code></li>
+      <li>Shorten retention: lower <code>retention.max_age_days</code> or set <code>cleanup_on_session_end: true</code></li>
+      <li>Delete everything: stop the daemon and remove <code>~/.harpax/</code></li>
+      <li>Export a session: use <code>harpax export &lt;session-id&gt;</code> or the Export action in the Session Detail page</li>
+    </ul>
+
+    <div class="callout">
+      <div class="callout-title">Local-first means local-first</div>
+      <p>If Harpax ever adds an opt-in cloud feature that would transmit session content to Cambric, it will be clearly labeled in the GUI, off by default, and documented here.</p>
+    </div>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/how-does-cambric-ensure-data-safety.html">How does Cambric AI ensure my data's safety?</a>
+    <a href="/help/articles/is-cambric-gdpr-compliant.html">Is Cambric AI GDPR compliant?</a>
+    <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">How do I connect with the Cambric team?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

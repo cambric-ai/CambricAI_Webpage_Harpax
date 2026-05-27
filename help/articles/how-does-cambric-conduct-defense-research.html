@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How does Cambric AI conduct defense research? — Cambric AI Help</title>
+<meta name="description" content="Every detection that ships in Harpax follows a five-step lifecycle: observe, model, validate, ship, and tune. Here's how rules get from threat to production.">
+<link rel="canonical" href="https://cambric.ai/help/articles/how-does-cambric-conduct-defense-research.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/security-research.html">SECURITY &amp; RESEARCH</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">DEFENSE RESEARCH</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Security &amp; Research &middot; 5 min read</div>
+  <h1>How does Cambric AI conduct defense research to improve Harpax?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Every detection that ships in Harpax follows the same five-step lifecycle: observe a real-world attack pattern, model it as a structured rule, validate against captured sessions, ship it with a confidence score and false-positive notes, and tune it once it's in the wild.
+    </p>
+
+    <h2>Where the rules come from</h2>
+    <p>Cambric's research sits at the intersection of three feeds:</p>
+    <ul>
+      <li><strong>Public threat research.</strong> Every built-in rule cites the public research that motivated it &mdash; OWASP's LLM Top 10, the LLM Prompt Injection Prevention Cheat Sheet, the Jailbreak-LLMs corpus, and academic work on memory-poisoning attacks like MemoryGraft. You can see the citations directly in each rule's <code>references</code> field.</li>
+      <li><strong>Observed attack patterns.</strong> Captured Claude Code sessions &mdash; both internal red-team exercises and patterns reported by users &mdash; are the source for sequence rules (the ones that match across multiple events instead of a single line of text).</li>
+      <li><strong>Tool ecosystem analysis.</strong> Scanning the MCP server and skill ecosystem surfaces dangerous primitives early. The <code>skill_threats.yaml</code> ruleset, for example, came from cataloguing the most common dangerous capabilities exposed by community skills.</li>
+    </ul>
+
+    <h2>The rule lifecycle</h2>
+
+    <h3>1. Observe</h3>
+    <p>A pattern is identified &mdash; from public research, an incident report, or pattern-mining over captured sessions. At this stage the team writes a short threat description, the attacker's goal, and at least one concrete example.</p>
+
+    <h3>2. Model</h3>
+    <p>The pattern is encoded as a structured rule. Every rule carries metadata so it can be reviewed and reasoned about:</p>
+    <pre><code>id: PI-001
+title: Direct Prompt Injection - Ignore Instructions
+description: Detects attempts to override system prompts...
+author: Harpax
+date: 2026-01-24
+status: stable
+references:
+  - https://owasp.org/www-community/attacks/PromptInjection
+  - https://cheatsheetseries.owasp.org/...
+tags:
+  - attack.llm01
+  - attack.prompt_injection
+level: high
+falsepositives:
+  - Legitimate discussions about AI security testing
+  - Documentation examples showing attack patterns
+detection:
+  patterns:
+    - pattern: 'ignore\s+(all\s+)?previous\s+instructions?'
+      weight: 40
+      case_sensitive: false
+  condition: any
+  min_confidence: 30
+fields:
+  - user_prompt
+  - tool_input</code></pre>
+    <p>The <strong>weight</strong> on each pattern and the <strong>min_confidence</strong> threshold for the rule are tuned together &mdash; the goal is to fire on real attacks without flagging legitimate discussion of those attacks. Known false-positive scenarios are documented up front, before the rule ever ships.</p>
+
+    <h3>3. Validate</h3>
+    <p>Before a rule ships as <code>status: stable</code>, it's run against a corpus of captured sessions covering both adversarial inputs (attacks the rule should catch) and benign inputs (conversations that mention security concepts but aren't attacks). Rules that produce too many false positives are reweighted or scoped down. Rules that miss known attacks are widened.</p>
+
+    <h3>4. Ship</h3>
+    <p>Rules ship in two places. Built-in YAML rules live in <code>internal/detection/builtin/</code> and are bundled with the binary. JS rules live in <code>rules/</code> and are loaded from your local rules directory (<code>~/.harpax/rules/</code>) at startup, with hot-reload during runtime so changes take effect without a restart.</p>
+
+    <h3>5. Tune</h3>
+    <p>Once a rule is in the wild, the detection pipeline records every fire &mdash; whether the user approved or denied the override, whether the rule was eventually added to an allowlist. That feedback is what drives the next round of tuning: patterns that consistently trigger overrides get reweighted, and patterns that get whitelisted frequently get scoped tighter.</p>
+
+    <h2>The methodology behind the tiers</h2>
+    <p>Harpax's detection pipeline is layered intentionally. Different threat categories have different signal characteristics:</p>
+    <ul>
+      <li><strong>T1 (regex)</strong> works for high-confidence textual patterns &mdash; credential formats, known jailbreak phrases, dangerous shell primitives. Fast, deterministic, easy to audit.</li>
+      <li><strong>T2 (embedding)</strong> targets semantic variations on known attacks &mdash; the rewordings and paraphrases that regex misses. Trades latency for recall.</li>
+      <li><strong>T2.5 (sequence)</strong> catches behavioral patterns &mdash; the kind of multi-step attack where no single event would look suspicious in isolation. This tier is where most novel attack research lives.</li>
+      <li><strong>T3 (LLM review)</strong> is the escape hatch for ambiguous cases: situations where the only realistic way to decide whether something is malicious is to read it. Used sparingly because of cost and latency.</li>
+    </ul>
+
+    <h2>Responsible disclosure and how you can contribute</h2>
+    <p>If you discover a new agent-targeted attack pattern that Harpax doesn't catch, please report it through the Cambric service desk at <a href="https://cambric.atlassian.net/servicedesk/customer/portal">cambric.atlassian.net/servicedesk</a> or email <a href="mailto:contact@cambric.ai">contact@cambric.ai</a>. Include the session JSONL if you have it &mdash; that's the input format the research team uses to validate new rules.</p>
+    <p>For attacks you'd like to disclose privately before public publication, please mark the report as confidential.</p>
+
+    <div class="callout">
+      <div class="callout-title">Want to write your own rules?</div>
+      <p>The same rule format Harpax ships with is what custom rules use. Drop a <code>.js</code> file into <code>~/.harpax/rules/</code> and it loads automatically. The Rules page in the GUI includes a tester for validating against captured events. Reading the built-in YAML rules in <code>internal/detection/builtin/</code> is the fastest way to see good patterns.</p>
+    </div>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/what-threats-does-harpax-defend-against.html">What threats does Harpax defend against?</a>
+    <a href="/help/articles/how-does-harpax-work.html">How does Harpax work?</a>
+    <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">How do I connect with the Cambric team?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>

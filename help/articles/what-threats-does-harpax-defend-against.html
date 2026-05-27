@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What threats does Harpax defend against? — Cambric AI Help</title>
+<meta name="description" content="Harpax targets the risks specific to AI agentic workflows: prompt injection, memory poisoning, skill / MCP threats, and behavioral attack sequences.">
+<link rel="canonical" href="https://cambric.ai/help/articles/what-threats-does-harpax-defend-against.html">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<div class="help-breadcrumb">
+  <a href="/help/">HELP</a>
+  <span class="crumb-sep">/</span>
+  <a href="/help/security-research.html">SECURITY &amp; RESEARCH</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb-current">WHAT THREATS DOES HARPAX DEFEND AGAINST?</span>
+</div>
+
+<article class="article-page">
+  <div class="article-meta">Security &amp; Research &middot; 8 min read</div>
+  <h1>What threats does Harpax defend against?</h1>
+
+  <div class="article-body">
+    <p class="lede">
+      Harpax targets the risks that are specific to AI agentic workflows &mdash; the ones where the agent itself, rather than a traditional process, becomes the attack surface. The built-in rule set covers four categories: prompt injection, memory poisoning, skill / MCP threats, and behavioral attack sequences.
+    </p>
+
+    <h2>1. Prompt injection and jailbreaks</h2>
+    <p>Prompt injection is the OWASP LLM01 risk: an attacker hides instructions in content the model is about to read, and the model follows them instead of (or in addition to) yours. Harpax catches the most common patterns at multiple points &mdash; in user prompts, in tool output that's about to be fed back into the model, and in skill definitions themselves.</p>
+
+    <table>
+      <thead>
+        <tr><th>Rule</th><th>Detects</th><th>Severity</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>PI-001</code></td>
+          <td>"Ignore previous instructions" and variants</td>
+          <td><span class="tag high">High</span></td>
+        </tr>
+        <tr>
+          <td><code>PI-002</code></td>
+          <td>Developer-mode and DAN-style jailbreak prompts</td>
+          <td><span class="tag critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><code>PI-003</code></td>
+          <td>System-override attempts and prompt-disclosure requests</td>
+          <td><span class="tag critical">Critical</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>2. Memory poisoning</h2>
+    <p>A memory-poisoning attack tries to plant persistent instructions that survive across turns or sessions. Sometimes this looks like a benign-seeming "remember this always&hellip;" message; sometimes it's a faked success log designed to make the model think it already completed an action it never ran (the MemoryGraft pattern).</p>
+
+    <table>
+      <thead>
+        <tr><th>Rule</th><th>Detects</th><th>Severity</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>MP-001</code></td>
+          <td>Persistent-instruction injection ("from now on always&hellip;")</td>
+          <td><span class="tag high">High</span></td>
+        </tr>
+        <tr>
+          <td><code>MP-002</code></td>
+          <td>MemoryGraft pattern: fabricated success claims</td>
+          <td><span class="tag medium">Medium</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>3. Skill and MCP threats</h2>
+    <p>MCP servers ("skills") extend Claude's capabilities &mdash; and expand the blast radius if one of them is compromised. Harpax scans skill definitions and hook scripts for known-dangerous patterns, and flags tool calls that match them.</p>
+
+    <table>
+      <thead>
+        <tr><th>Rule</th><th>Detects</th><th>Severity</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>SK-001</code></td>
+          <td>Data exfiltration via <code>curl</code>, <code>wget</code>, <code>nc</code>, base64 pipelines</td>
+          <td><span class="tag critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><code>SK-002</code></td>
+          <td>Credential file access (<code>~/.ssh</code>, <code>~/.aws</code>, <code>~/.kube</code>, credentials.json)</td>
+          <td><span class="tag critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><code>SK-003</code></td>
+          <td>Permission-bypass flags (<code>dangerouslyDisableSandbox</code>, <code>bypassPermissions</code>, <code>--no-verify</code>)</td>
+          <td><span class="tag critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><code>SK-004</code></td>
+          <td>Prompt injection embedded inside skill definitions</td>
+          <td><span class="tag high">High</span></td>
+        </tr>
+        <tr>
+          <td><code>SK-005</code></td>
+          <td>Dangerous shell patterns: <code>curl | bash</code>, <code>eval</code>, unsafe <code>exec</code></td>
+          <td><span class="tag critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><code>SK-006</code></td>
+          <td>Persistence via writes to <code>.claude/skills</code>, settings.json, shell profiles</td>
+          <td><span class="tag high">High</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>4. Behavioral attack sequences</h2>
+    <p>Some attacks are invisible at the level of a single tool call. A <code>whoami</code> is fine; three reconnaissance commands inside thirty seconds followed by an outbound network call is not. Harpax's sequence engine looks at session history to catch multi-step attacks.</p>
+
+    <table>
+      <thead>
+        <tr><th>Rule</th><th>Detects</th><th>Severity</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>credential_exfil.js</code></td>
+          <td>Network egress (<code>curl</code>, <code>wget</code>, <code>WebFetch</code>) after a credential exposure earlier in the session</td>
+          <td><span class="tag critical">Critical</span></td>
+        </tr>
+        <tr>
+          <td><code>prompt_stuffing.js</code></td>
+          <td>Repeated prompt-injection markers across the last five user prompts</td>
+          <td><span class="tag high">High</span></td>
+        </tr>
+        <tr>
+          <td><code>recon_sequence.js</code></td>
+          <td>Three or more recon commands (<code>whoami</code>, <code>netstat</code>, <code>systeminfo</code>, etc.) in a thirty-second window</td>
+          <td><span class="tag high">High</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>What Harpax does not catch (today)</h2>
+    <p>Honest answer: AI-agent threats are a moving target, and no single rule set is complete. The current built-in coverage is strongest on the OWASP LLM Top 10 categories and the most common abuse patterns seen in agentic workflows. The following areas are <em>partial</em> coverage today and improve with each release:</p>
+    <ul>
+      <li><strong>Tier 2 (embedding) and Tier 3 (LLM-review) detections</strong> are scaffolded but ship disabled by default. Enabling them broadens semantic coverage but adds latency and external dependencies.</li>
+      <li><strong>Supply-chain attacks on MCP servers themselves</strong> &mdash; a compromised package update, for example &mdash; require additional tooling outside Harpax's runtime detection.</li>
+      <li><strong>Threats specific to your environment</strong> &mdash; internal endpoints, custom credential locations, business-logic abuse &mdash; need custom JS rules.</li>
+    </ul>
+
+    <div class="callout">
+      <div class="callout-title">Write your own rules</div>
+      <p>The built-in rule set is a baseline, not a ceiling. Drop a <code>.js</code> file into <code>~/.harpax/rules/</code> and Harpax will hot-reload it. The Rules page in the GUI includes a tester so you can validate against captured events before going live.</p>
+    </div>
+
+    <h2>How severities map to actions</h2>
+    <p>In active mode, the default severity mapping is:</p>
+    <ul>
+      <li><span class="tag critical">Critical</span> &rarr; <strong>block</strong> (hook returns code 2, action does not run)</li>
+      <li><span class="tag high">High</span> &rarr; <strong>warn</strong> (surfaced in the GUI, action proceeds)</li>
+      <li><span class="tag medium">Medium</span> &rarr; <strong>log</strong> (recorded to session JSONL)</li>
+    </ul>
+    <p>Adjust these per-severity in your config if you want a stricter or looser posture. Passive mode never blocks, regardless of severity.</p>
+  </div>
+
+  <div class="article-feedback">
+    <p>Was this helpful?</p>
+    <div class="feedback-btns">
+      <button class="feedback-btn" type="button">Yes</button>
+      <button class="feedback-btn" type="button">No</button>
+    </div>
+  </div>
+
+  <div class="article-related">
+    <div class="article-related-label">// RELATED</div>
+    <a href="/help/articles/how-does-harpax-work.html">How does Harpax work?</a>
+    <a href="/help/articles/how-does-cambric-conduct-defense-research.html">How does Cambric AI conduct defense research?</a>
+    <a href="/help/articles/how-does-cambric-ensure-data-safety.html">How does Cambric AI ensure my data's safety?</a>
+  </div>
+</article>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+<script defer src="/assets/intercom.js"></script>
+</body>
+</html>
