@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>How do I create an account? — Cambric AI Help</title>
-<meta name="description" content="You don't. Harpax is local-only — everything runs on your machine and there's no Cambric AI account to sign up for. Your install is your account.">
+<meta name="description" content="You don't need an account to use Harpax — it's local-first. The only Cambric account is a lightweight billing account for paid plans, managed at cambric.ai/account.">
 <link rel="canonical" href="https://cambric.ai/help/articles/how-do-i-create-an-account.html">
 <link rel="icon" href="/favicon.svg">
 
@@ -47,19 +47,19 @@
 
   <div class="article-body">
     <p class="lede">
-      You don't. Harpax is local-only &mdash; everything runs on your machine and there is no Cambric AI account to sign up for in order to download, install, or use it. Your "account" is your local Harpax install.
+      You don't need one to use Harpax. The app is local-first &mdash; it runs entirely on your machine with no sign-up. The only place a Cambric account comes in is billing: if you're on a paid plan, you manage it from a lightweight account at <a href="https://cambric.ai/account/">cambric.ai/account</a>, completely separate from the app itself.
     </p>
 
     <h2>Why there's no sign-up</h2>
     <p>Harpax is designed around a local-first principle: the sessions it captures, the detections it runs, the rules it loads, and the configuration it stores all live on your machine, under your user account, in a directory you control (<code>~/.harpax/</code>). There is no cloud backend that needs to authenticate you, no shared workspace to provision, and no per-seat license to validate.</p>
-    <p>Because nothing is centralized, there's nothing to sign up <em>for</em>. Download the app, install it, and you're done.</p>
+    <p>To run the app, there's nothing to sign up <em>for</em> &mdash; download it, install it, and you're done. (Paid-plan billing is the one exception &mdash; see below.)</p>
 
     <h2>What "local-only" means in practice</h2>
     <ul>
       <li><strong>No email or password.</strong> Harpax doesn't ask for credentials at install time and doesn't store them.</li>
       <li><strong>No identity service.</strong> The daemon's internal "identity" is a fixed magic string baked into every Harpax binary, used only so the GUI can verify it's talking to a real Harpax process on your loopback interface. It is not a user identifier and nothing about it is transmitted off your machine.</li>
       <li><strong>No multi-device sync.</strong> Sessions, rules, allowlists, and config don't sync between machines &mdash; each install is its own independent universe. (If you want your custom rules on a second machine, copy the files manually.)</li>
-      <li><strong>No usage telemetry, by design.</strong> Harpax doesn't phone home and has no "account dashboard" to populate, because there's no account.</li>
+      <li><strong>No usage telemetry, by design.</strong> The app doesn't phone home. Paid-plan billing is the one place a Cambric account exists (see below), and it only ever touches plan and payment data &mdash; never your sessions.</li>
     </ul>
 
     <h2>Where your data actually lives</h2>
@@ -86,8 +86,10 @@
     </ul>
     <p>For details, see <a href="/help/articles/how-do-i-connect-with-the-cambric-team.html">How do I connect with the Cambric team?</a></p>
 
-    <h2>What if accounts are added later?</h2>
-    <p>If Cambric AI ever introduces optional account-based features (for example, a hosted dashboard, a team-management surface, or paid tiers), the local-only mode of Harpax will remain available. This article will be updated when that changes &mdash; until then, "create an account" is one of those steps you can safely skip.</p>
+    <h2>What about paid plans?</h2>
+    <p>Paid Harpax plans do have a lightweight Cambric billing account &mdash; but it's separate from the app and covers billing only. Access it at <a href="https://cambric.ai/account/">cambric.ai/account</a> by signing in with your email (we verify by email; there's no separate password to manage). From there you can view your plan, change plans, update your payment method, see invoices, and cancel.</p>
+    <p>That billing account never holds your Harpax session data &mdash; that stays local on your machine, as described above. The app is local-first and account-free; billing is just a thin record of your plan and payments.</p>
+    <p>To cancel or switch plans, see <a href="/help/articles/how-do-i-cancel-my-stripe-subscription.html">How do I cancel my Stripe subscription?</a></p>
   </div>
 
   <div class="article-feedback">
