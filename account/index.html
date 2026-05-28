@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account — Cambric AI</title>
+<meta name="description" content="Manage your Harpax subscription, payment method, and invoices.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg">
+
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/help.css">
+<link rel="stylesheet" href="/css/account.css">
+
+<style>
+  .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,40,64,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(37,40,64,.3) 1px,transparent 1px);background-size:60px 60px;z-index:0;pointer-events:none}
+  .content{position:relative;z-index:1}
+</style>
+
+<!-- Stripe.js — required for the embedded card field (Stripe Elements) -->
+<script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="content">
+
+<nav>
+  <a href="/index.html" class="nav-logo">Cambric<span> AI</span></a>
+  <div class="nav-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/help/">Help</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/download.html" class="nav-dl">Download &rarr;</a>
+  </div>
+</nav>
+
+<!-- LOGIN VIEW -->
+<section id="login-view" class="acct-section">
+  <div class="section-label">// ACCOUNT</div>
+  <h1>Manage your account</h1>
+  <p class="acct-sub">Sign in to manage your Harpax subscription, payment method, and invoices.</p>
+
+  <div id="config-banner" class="acct-banner" hidden></div>
+
+  <form id="login-form" class="acct-card">
+    <div class="acct-field">
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" autocomplete="email" required>
+    </div>
+    <div class="acct-field">
+      <label for="login-secret">Access secret</label>
+      <input type="password" id="login-secret" autocomplete="current-password" required>
+    </div>
+    <button class="btn-p" type="submit">Sign in</button>
+    <div id="login-error" class="acct-error"></div>
+  </form>
+  <p class="acct-hint">Test mode &middot; use a seeded persona, e.g. <code>alice@cambric-test.example</code> / <code>demo123</code>.</p>
+</section>
+
+<!-- DASHBOARD VIEW -->
+<section id="dashboard-view" class="acct-section" hidden>
+  <div class="section-label">// ACCOUNT</div>
+  <div class="acct-head">
+    <h1>Billing &amp; plan</h1>
+    <button id="logout-btn" class="btn-g">Sign out</button>
+  </div>
+  <p class="acct-sub" id="acct-greeting"></p>
+
+  <div class="acct-card" id="plan-card"></div>
+  <div class="acct-card" id="payment-card"></div>
+  <div class="acct-card" id="invoices-card"></div>
+</section>
+
+<!-- PLAN PICKER MODAL -->
+<div id="plan-modal" class="acct-modal" hidden>
+  <div class="acct-modal-inner" id="plan-modal-inner"></div>
+</div>
+
+<!-- PAYMENT MODAL (Stripe Elements) -->
+<div id="payment-modal" class="acct-modal" hidden>
+  <div class="acct-modal-inner">
+    <h2>Update payment method</h2>
+    <p class="acct-muted">Card details are handled directly by Stripe and never touch our servers.</p>
+    <div id="payment-element"></div>
+    <div id="payment-error" class="acct-error"></div>
+    <div class="acct-modal-actions">
+      <button class="btn-g" id="payment-cancel" type="button">Cancel</button>
+      <button class="btn-p" id="payment-save" type="button">Save card</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="/index.html" class="footer-logo">Cambric AI</a>
+  <div class="footer-links">
+    <a href="/research.html">Research</a>
+    <a href="/blog.html">Blog</a>
+    <a href="/about.html">About</a>
+    <a href="/contact.html">Contact</a>
+    <a href="/help/">Help</a>
+  </div>
+  <span class="footer-note">&copy; 2026 Cambric AI &middot; All session data stays local</span>
+</footer>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIG — fill these two in after deploying the Worker and grabbing your keys.
+//   WORKER_URL : output of `wrangler deploy` (e.g. https://fin-stripe-relay.<acct>.workers.dev)
+//   STRIPE_PK  : Stripe TEST publishable key (pk_test_...) from the dashboard.
+//                Publishable keys are safe to expose in client code.
+// ─────────────────────────────────────────────────────────────────────────────
+const CONFIG = {
+  WORKER_URL: "https://fin-stripe-relay.cambric-ai.workers.dev",
+  STRIPE_PK: "pk_test_51Tc5gBF2WUl2pjQUsxnaVoGeUaiGDCyKu7Wan4xXF6lbZXij3NvrjzNYti1tr8XJH86e4NhZbQyMD6hK8qdBwa0800LQjFJX5F",
+};
+
+// Demo mode: open /account/?demo=1 to preview the billing dashboard with
+// sample data — no deployed Worker required. Purely for design review;
+// the action buttons are inert in demo. Safe to leave in (gated on the
+// query param) or strip before production.
+const DEMO = new URLSearchParams(location.search).get("demo") === "1";
+const now = () => Math.floor(Date.now() / 1000);
+const DEMO_DATA = {
+  "/account/me": { ok: true,
+    customer: { email: "alice@cambric-test.example", name: "Alice Active" },
+    subscription: { id: "sub_demo", status: "active", priceId: "price_pro_m",
+      priceNickname: "Harpax Pro Monthly", amount: 900, currency: "usd",
+      interval: "month", currentPeriodEnd: now() + 1900000, cancelAtPeriodEnd: false } },
+  "/account/payment-method": { ok: true, card: { brand: "mastercard", last4: "6043", expMonth: 8, expYear: 2028 } },
+  "/account/invoices": { ok: true, invoices: [
+    { id: "in_3", created: now() - 600000,  total: 900, currency: "usd", status: "paid", hostedInvoiceUrl: "#" },
+    { id: "in_2", created: now() - 3200000, total: 900, currency: "usd", status: "paid", hostedInvoiceUrl: "#" },
+    { id: "in_1", created: now() - 5800000, total: 0,   currency: "usd", status: "paid", hostedInvoiceUrl: "#" } ] },
+  "/account/plans": { ok: true, products: [
+    { productId: "prod_pro", name: "Harpax Pro", description: "Session security for individual developers.",
+      prices: [ { id: "price_pro_m", interval: "month", amount: 900, currency: "usd" }, { id: "price_pro_y", interval: "year", amount: 9000, currency: "usd" } ] },
+    { productId: "prod_max", name: "Harpax Max", description: "Higher limits, priority detection, early access to new rules.",
+      prices: [ { id: "price_max_m", interval: "month", amount: 2900, currency: "usd" }, { id: "price_max_y", interval: "year", amount: 29000, currency: "usd" } ] } ] },
+  "/account/preview-plan-change": { ok: true, isNew: false, immediateTotal: 1100, currency: "usd" },
+};
+
+const $ = (id) => document.getElementById(id);
+let TOKEN = sessionStorage.getItem("harpax_acct_token") || null;
+let CURRENT = { subscription: null };
+let stripe = null, elements = null, PLANS = null, planBilling = "month";
+
+// ── API helper ────────────────────────────────────────────────────────────────
+async function api(path, body) {
+  if (DEMO) {
+    await new Promise((r) => setTimeout(r, 120)); // simulate latency
+    return DEMO_DATA[path] || { ok: true };
+  }
+  const res = await fetch(CONFIG.WORKER_URL + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body || {}),
+  });
+  let data = {};
+  try { data = await res.json(); } catch {}
+  if (!res.ok || data.ok === false) {
+    const err = new Error(data.error || `Request failed (${res.status})`);
+    err.status = res.status;
+    err.payload = data;
+    throw err;
+  }
+  return data;
+}
+
+// ── formatters ──────────────────────────────────────────────────────────────
+const money = (amt, cur = "usd") =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: (cur || "usd").toUpperCase() }).format((amt || 0) / 100);
+const date = (s) =>
+  s ? new Date(s * 1000).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—";
+
+// ── auth ──────────────────────────────────────────────────────────────────────
+async function doLogin(email, secret) {
+  const res = await api("/account/login", { email, secret });
+  TOKEN = res.token;
+  sessionStorage.setItem("harpax_acct_token", TOKEN);
+  await showDashboard(res.customer);
+}
+function logout() {
+  TOKEN = null;
+  sessionStorage.removeItem("harpax_acct_token");
+  $("dashboard-view").hidden = true;
+  $("login-view").hidden = false;
+}
+
+// ── dashboard ───────────────────────────────────────────────────────────────
+async function showDashboard(customer) {
+  $("login-view").hidden = true;
+  $("dashboard-view").hidden = false;
+  if (customer) $("acct-greeting").textContent = `Signed in as ${customer.email}`;
+  await Promise.all([renderPlan(), renderPayment(), renderInvoices()]);
+}
+
+async function renderPlan() {
+  const { customer, subscription } = await api("/account/me", { token: TOKEN });
+  CURRENT.subscription = subscription;
+  if (!$("acct-greeting").textContent && customer) $("acct-greeting").textContent = `Signed in as ${customer.email}`;
+  const card = $("plan-card");
+  const active = subscription && subscription.status !== "canceled";
+  if (!active) {
+    card.innerHTML = `
+      <div class="acct-card-label">Plan</div>
+      <div class="acct-plan-name">No active plan</div>
+      <p class="acct-muted">You don't have an active subscription right now.</p>
+      <div class="acct-actions"><button class="btn-p" id="choose-plan" type="button">Choose a plan</button></div>`;
+  } else {
+    const note = subscription.cancelAtPeriodEnd
+      ? `<p class="acct-warn">Cancels on ${date(subscription.currentPeriodEnd)} — you keep access until then.</p>`
+      : `<p class="acct-muted">Status: ${subscription.status} &middot; Renews ${date(subscription.currentPeriodEnd)}</p>`;
+    card.innerHTML = `
+      <div class="acct-card-label">Plan</div>
+      <div class="acct-plan-name">${subscription.priceNickname || "Subscription"}</div>
+      <div class="acct-plan-price">${money(subscription.amount, subscription.currency)}<span>/${subscription.interval}</span></div>
+      ${note}
+      <div class="acct-actions">
+        <button class="btn-p" id="change-plan" type="button">Change plan</button>
+        ${subscription.cancelAtPeriodEnd ? "" : '<button class="btn-g" id="cancel-plan" type="button">Cancel subscription</button>'}
+      </div>`;
+  }
+  $("choose-plan")?.addEventListener("click", openPlanModal);
+  $("change-plan")?.addEventListener("click", openPlanModal);
+  $("cancel-plan")?.addEventListener("click", doCancel);
+}
+
+async function renderPayment() {
+  const { card } = await api("/account/payment-method", { token: TOKEN });
+  const el = $("payment-card");
+  const line = card
+    ? `<div class="acct-card-line"><span class="acct-brand">${card.brand}</span> &bull;&bull;&bull;&bull; ${card.last4} &middot; exp ${String(card.expMonth).padStart(2, "0")}/${card.expYear}</div>`
+    : `<p class="acct-muted">No payment method on file.</p>`;
+  el.innerHTML = `
+    <div class="acct-card-label">Payment method</div>
+    ${line}
+    <div class="acct-actions"><button class="btn-p" id="update-payment" type="button">${card ? "Update" : "Add"} payment method</button></div>`;
+  $("update-payment").addEventListener("click", openPaymentModal);
+}
+
+async function renderInvoices() {
+  const { invoices } = await api("/account/invoices", { token: TOKEN });
+  const el = $("invoices-card");
+  if (!invoices.length) {
+    el.innerHTML = `<div class="acct-card-label">Invoices</div><p class="acct-muted">No invoices yet.</p>`;
+    return;
+  }
+  const rows = invoices.map((i) => `
+    <tr>
+      <td>${date(i.created)}</td>
+      <td>${money(i.total, i.currency)}</td>
+      <td><span class="acct-status acct-status-${i.status}">${i.status}</span></td>
+      <td>${i.hostedInvoiceUrl ? `<a href="${i.hostedInvoiceUrl}" target="_blank" rel="noopener">View</a>` : "—"}</td>
+    </tr>`).join("");
+  el.innerHTML = `
+    <div class="acct-card-label">Invoices</div>
+    <table class="acct-invoices">
+      <thead><tr><th>Date</th><th>Total</th><th>Status</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── plan change (staged: pick → preview → confirm) ────────────────────────────
+async function openPlanModal() {
+  if (!PLANS) PLANS = (await api("/account/plans", {})).products;
+  renderPlanGrid();
+  $("plan-modal").hidden = false;
+}
+function renderPlanGrid() {
+  const currentPriceId = CURRENT.subscription?.priceId;
+  const options = PLANS.map((prod) => {
+    const price = prod.prices.find((p) => p.interval === planBilling) || prod.prices[0];
+    if (!price) return "";
+    const isCurrent = price.id === currentPriceId;
+    return `
+      <div class="plan-option">
+        <h3>${prod.name}</h3>
+        <div class="plan-amt">${money(price.amount, price.currency)}<span>/${price.interval}</span></div>
+        <p>${prod.description || ""}</p>
+        ${isCurrent
+          ? `<div class="current-tag">Current plan</div>`
+          : `<button class="btn-p" type="button" data-price="${price.id}">Select</button>`}
+      </div>`;
+  }).join("");
+  $("plan-modal-inner").innerHTML = `
+    <h2>Change plan</h2>
+    <div class="billing-toggle">
+      <button type="button" data-billing="month" class="${planBilling === "month" ? "active" : ""}">Monthly</button>
+      <button type="button" data-billing="year" class="${planBilling === "year" ? "active" : ""}">Yearly <span class="save-tag">save ~17%</span></button>
+    </div>
+    <div class="plan-grid">${options}</div>
+    <div class="acct-modal-actions"><button class="btn-g" type="button" id="plan-close">Close</button></div>`;
+  $("plan-close").addEventListener("click", () => ($("plan-modal").hidden = true));
+  $("plan-modal-inner").querySelectorAll("[data-billing]").forEach((b) =>
+    b.addEventListener("click", () => { planBilling = b.dataset.billing; renderPlanGrid(); }));
+  $("plan-modal-inner").querySelectorAll("[data-price]").forEach((b) =>
+    b.addEventListener("click", () => previewPlan(b.dataset.price)));
+}
+async function previewPlan(priceId) {
+  $("plan-modal-inner").innerHTML = `<h2>Reviewing change…</h2><p class="acct-muted">Calculating proration…</p>`;
+  let line = "Proration will apply on your next invoice.";
+  try {
+    const p = await api("/account/preview-plan-change", { token: TOKEN, priceId });
+    if (p.isNew) line = "This starts a new subscription. You'll be billed today for the first period.";
+    else if (p.previewUnavailable) line = "Your plan will switch now; proration applies on your next invoice.";
+    else line = `You'll be charged <strong>${money(p.immediateTotal, p.currency)}</strong> today (prorated), then the new rate each period.`;
+  } catch (e) { line = "Couldn't load a preview, but the change will still apply with proration."; }
+  $("plan-modal-inner").innerHTML = `
+    <h2>Confirm plan change</h2>
+    <div class="plan-preview">${line}</div>
+    <div class="acct-modal-actions">
+      <button class="btn-g" type="button" id="preview-back">Back</button>
+      <button class="btn-p" type="button" id="preview-confirm">Confirm change</button>
+    </div>`;
+  $("preview-back").addEventListener("click", renderPlanGrid);
+  $("preview-confirm").addEventListener("click", async () => {
+    $("preview-confirm").disabled = true;
+    $("preview-confirm").textContent = "Applying…";
+    try {
+      await api("/account/change-plan", { token: TOKEN, priceId });
+      $("plan-modal").hidden = true;
+      await showDashboard();
+    } catch (e) {
+      if (e.payload?.needsPaymentMethod) {
+        $("plan-modal").hidden = true;
+        openPaymentModal();
+      } else {
+        $("plan-modal-inner").innerHTML = `<h2>Something went wrong</h2><div class="acct-error">${e.message}</div>
+          <div class="acct-modal-actions"><button class="btn-g" type="button" onclick="document.getElementById('plan-modal').hidden=true">Close</button></div>`;
+      }
+    }
+  });
+}
+
+// ── payment method (Stripe Elements) ──────────────────────────────────────────
+async function openPaymentModal() {
+  $("payment-error").textContent = "";
+  $("payment-modal").hidden = false;
+  if (DEMO) { $("payment-error").textContent = "Card editing is disabled in demo mode."; return; }
+  try {
+    if (!stripe) stripe = Stripe(CONFIG.STRIPE_PK);
+    const { clientSecret } = await api("/account/setup-intent", { token: TOKEN });
+    elements = stripe.elements({
+      clientSecret,
+      appearance: {
+        theme: "night",
+        variables: {
+          colorPrimary: "#A090C8",
+          colorBackground: "#11141f",
+          colorText: "#DDD9D0",
+          fontFamily: "'JetBrains Mono', monospace",
+          borderRadius: "2px",
+        },
+      },
+    });
+    const paymentEl = elements.create("payment");
+    paymentEl.mount("#payment-element");
+  } catch (e) {
+    $("payment-error").textContent = e.message;
+  }
+}
+async function savePayment() {
+  $("payment-error").textContent = "";
+  $("payment-save").disabled = true;
+  $("payment-save").textContent = "Saving…";
+  try {
+    const { error: err, setupIntent } = await stripe.confirmSetup({ elements, redirect: "if_required" });
+    if (err) throw new Error(err.message);
+    await api("/account/set-default-payment", { token: TOKEN, paymentMethodId: setupIntent.payment_method });
+    $("payment-modal").hidden = true;
+    await renderPayment();
+  } catch (e) {
+    $("payment-error").textContent = e.message;
+  } finally {
+    $("payment-save").disabled = false;
+    $("payment-save").textContent = "Save card";
+  }
+}
+
+// ── cancel ────────────────────────────────────────────────────────────────────
+async function doCancel() {
+  if (!confirm("Cancel your subscription? You'll keep access until the end of the current billing period.")) return;
+  try {
+    await api("/account/cancel", { token: TOKEN });
+    await showDashboard();
+  } catch (e) { alert(e.message); }
+}
+
+// ── init ────────────────────────────────────────────────────────────────────
+function checkConfig() {
+  const bad = CONFIG.WORKER_URL.includes("REPLACE-ME") || CONFIG.STRIPE_PK.includes("REPLACE_ME");
+  if (bad) {
+    const b = $("config-banner");
+    b.hidden = false;
+    b.innerHTML = `<strong>Setup needed.</strong> Edit <code>account/index.html</code> CONFIG: set <code>WORKER_URL</code> (from <code>wrangler deploy</code>) and <code>STRIPE_PK</code> (your <code>pk_test_</code> key).`;
+  }
+  return !bad;
+}
+
+async function init() {
+  checkConfig();
+  $("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("login-error").textContent = "";
+    try {
+      await doLogin($("login-email").value.trim(), $("login-secret").value);
+    } catch (err) { $("login-error").textContent = err.message; }
+  });
+  $("logout-btn").addEventListener("click", logout);
+  $("payment-cancel").addEventListener("click", () => ($("payment-modal").hidden = true));
+  $("payment-save").addEventListener("click", savePayment);
+
+  // Demo mode → straight to the dashboard with sample data.
+  if (DEMO) { await showDashboard({ email: "alice@cambric-test.example", name: "Alice Active" }); return; }
+
+  // Resume an existing session if present.
+  if (TOKEN) {
+    try { await showDashboard(); }
+    catch { logout(); }
+  }
+}
+init();
+</script>
+</body>
+</html>
